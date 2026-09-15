@@ -24,6 +24,10 @@ namespace MsfsPhysicsCamera
         private double velX = 0, velY = 0, velZ = 0;
         private double velPitch = 0, velRoll = 0;
 
+#if DEBUG
+        private double debugTimeAccumulator = 0.0;
+#endif
+
         private const double DT_MAX = 0.05;
         private const double G_FEET_PER_SEC2 = 32.174;
         private const double SCALE_TRANS_X = 3.0;
@@ -42,6 +46,15 @@ namespace MsfsPhysicsCamera
         {
             if (dt <= 0) return;
             dt = Math.Min(dt, DT_MAX);
+
+#if DEBUG
+            debugTimeAccumulator += dt;
+            if (debugTimeAccumulator >= 10.0)
+            {
+                debugTimeAccumulator = 0.0;
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [PhysicsEngine] Input: AccelX={telemetry.AccelX:F2}, AccelY={telemetry.AccelY:F2}, AccelZ={telemetry.AccelZ:F2}, VelX={telemetry.VelX:F2}, VelY={telemetry.VelY:F2}, VelZ={telemetry.VelZ:F2}, Pitch={telemetry.Pitch:F2}, Bank={telemetry.Bank:F2} | Output: HeadX={HeadX:F3}, HeadY={HeadY:F3}, HeadZ={HeadZ:F3}, HeadPitch={HeadPitch:F3}, HeadRoll={HeadRoll:F3}");
+            }
+#endif
 
             // 1. Calculate external forces based on aircraft acceleration
             // It turns out FreeTrack/MSFS expects +Z for backward and -Z for forward.

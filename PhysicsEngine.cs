@@ -42,7 +42,8 @@ namespace MsfsPhysicsCamera
             double transYMult = 1.0,
             double transZMult = 1.0,
             double pitchMult = 1.0,
-            double rollMult = 1.0)
+            double rollMult = 1.0,
+            bool simulateGravity = true)
         {
             if (dt <= 0) return;
             dt = Math.Min(dt, DT_MAX);
@@ -67,23 +68,30 @@ namespace MsfsPhysicsCamera
             double scaleZ = SCALE_TRANS_Z * effectMultiplier * transZMult; 
 
             // MSFS accelerations are kinematic (coordinate) accelerations and do not include gravity.
-            // We must calculate the specific force (what the pilot feels) by subtracting gravity.
-            // Gravity in Earth frame is 1G downwards. We project it onto the body axes.
             double pitch = telemetry.Pitch;
             double bank = telemetry.Bank;
 
-            double gX = G_FEET_PER_SEC2 * Math.Cos(pitch) * Math.Sin(bank);
-            double gY = -G_FEET_PER_SEC2 * Math.Cos(pitch) * Math.Cos(bank);
-            double gZ = -G_FEET_PER_SEC2 * Math.Sin(pitch);
+            double devX = telemetry.AccelX;
+            double devY = telemetry.AccelY;
+            double devZ = telemetry.AccelZ;
 
-            double specificForceX = telemetry.AccelX - gX;
-            double specificForceY = telemetry.AccelY - gY;
-            double specificForceZ = telemetry.AccelZ - gZ;
+            if (simulateGravity)
+            {
+                // We calculate the specific force (what the pilot feels) by subtracting gravity.
+                // Gravity in Earth frame is 1G downwards. We project it onto the body axes.
+                double gX = G_FEET_PER_SEC2 * Math.Cos(pitch) * Math.Sin(bank);
+                double gY = -G_FEET_PER_SEC2 * Math.Cos(pitch) * Math.Cos(bank);
+                double gZ = G_FEET_PER_SEC2 * Math.Sin(pitch);
 
-            // We subtract 1G from the Y axis so the head rests at 0 in steady level flight.
-            double devX = specificForceX;
-            double devY = specificForceY - G_FEET_PER_SEC2;
-            double devZ = specificForceZ;
+                double specificForceX = telemetry.AccelX - gX;
+                double specificForceY = telemetry.AccelY - gY;
+                double specificForceZ = telemetry.AccelZ - gZ;
+
+                // We subtract 1G from the Y axis so the head rests at 0 in steady level flight.
+                devX = specificForceX;
+                devY = specificForceY - G_FEET_PER_SEC2;
+                devZ = specificForceZ;
+            }
 
             double extForceX = devX * scaleX;
             double extForceY = devY * scaleY;

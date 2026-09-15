@@ -92,6 +92,13 @@ namespace MsfsPhysicsCamera
             set { if (_rollMultiplier != value) { _rollMultiplier = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMultiplier))); SaveSettings(); } }
         }
 
+        private bool _simulateGravity = true;
+        public bool SimulateGravity
+        {
+            get => _simulateGravity;
+            set { if (_simulateGravity != value) { _simulateGravity = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SimulateGravity))); SaveSettings(); } }
+        }
+
         private bool _minimizeOnStartup;
         public bool MinimizeOnStartup
         {
@@ -122,6 +129,7 @@ namespace MsfsPhysicsCamera
             _transZMultiplier = settings.TransZMultiplier;
             _pitchMultiplier = settings.PitchMultiplier;
             _rollMultiplier = settings.RollMultiplier;
+            _simulateGravity = settings.SimulateGravity;
             _minimizeOnStartup = settings.MinimizeOnStartup;
             _minimizeToTray = settings.MinimizeToTray;
 
@@ -232,6 +240,7 @@ namespace MsfsPhysicsCamera
                 settings.TransZMultiplier = _transZMultiplier;
                 settings.PitchMultiplier = _pitchMultiplier;
                 settings.RollMultiplier = _rollMultiplier;
+                settings.SimulateGravity = _simulateGravity;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
                 settings.MinimizeToTray = _minimizeToTray;
                 settings.Save();
@@ -270,7 +279,7 @@ namespace MsfsPhysicsCamera
                     else
                     {
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, SimulateGravity);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.

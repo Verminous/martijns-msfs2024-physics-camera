@@ -28,6 +28,7 @@ namespace MsfsPhysicsCamera
             public double VelZ;
             public double Pitch;
             public double Bank;
+            public int CameraState;
         }
 
         private TelemetryData _currentData;
@@ -70,6 +71,7 @@ namespace MsfsPhysicsCamera
                 
                 simconnect.AddToDataDefinition(DEFINITIONS.TelemetryData, "PLANE PITCH DEGREES", "radians", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.TelemetryData, "PLANE BANK DEGREES", "radians", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                simconnect.AddToDataDefinition(DEFINITIONS.TelemetryData, "CAMERA STATE", "enum", SIMCONNECT_DATATYPE.INT32, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
                 simconnect.RegisterDataDefineStruct<TelemetryData>(DEFINITIONS.TelemetryData);
 

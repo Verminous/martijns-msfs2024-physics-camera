@@ -99,6 +99,13 @@ namespace MsfsPhysicsCamera
             set { if (_simulateGravity != value) { _simulateGravity = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SimulateGravity))); SaveSettings(); } }
         }
 
+        private bool _onlyInCockpit = true;
+        public bool OnlyInCockpit
+        {
+            get => _onlyInCockpit;
+            set { if (_onlyInCockpit != value) { _onlyInCockpit = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OnlyInCockpit))); SaveSettings(); } }
+        }
+
         private bool _minimizeOnStartup;
         public bool MinimizeOnStartup
         {
@@ -130,6 +137,7 @@ namespace MsfsPhysicsCamera
             _pitchMultiplier = settings.PitchMultiplier;
             _rollMultiplier = settings.RollMultiplier;
             _simulateGravity = settings.SimulateGravity;
+            _onlyInCockpit = settings.OnlyInCockpit;
             _minimizeOnStartup = settings.MinimizeOnStartup;
             _minimizeToTray = settings.MinimizeToTray;
 
@@ -241,6 +249,7 @@ namespace MsfsPhysicsCamera
                 settings.PitchMultiplier = _pitchMultiplier;
                 settings.RollMultiplier = _rollMultiplier;
                 settings.SimulateGravity = _simulateGravity;
+                settings.OnlyInCockpit = _onlyInCockpit;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
                 settings.MinimizeToTray = _minimizeToTray;
                 settings.Save();
@@ -279,7 +288,7 @@ namespace MsfsPhysicsCamera
                     else
                     {
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, SimulateGravity);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, SimulateGravity, OnlyInCockpit);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.

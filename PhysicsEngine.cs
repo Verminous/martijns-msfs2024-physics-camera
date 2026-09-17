@@ -43,7 +43,8 @@ namespace MsfsPhysicsCamera
             double transZMult = 1.0,
             double pitchMult = 1.0,
             double rollMult = 1.0,
-            bool simulateGravity = true)
+            bool simulateGravity = true,
+            bool onlyInCockpit = true)
         {
             if (dt <= 0) return;
             dt = Math.Min(dt, DT_MAX);
@@ -53,9 +54,13 @@ namespace MsfsPhysicsCamera
             if (debugTimeAccumulator >= 10.0)
             {
                 debugTimeAccumulator = 0.0;
-                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [PhysicsEngine] Input: AccelX={telemetry.AccelX:F2}, AccelY={telemetry.AccelY:F2}, AccelZ={telemetry.AccelZ:F2}, VelX={telemetry.VelX:F2}, VelY={telemetry.VelY:F2}, VelZ={telemetry.VelZ:F2}, Pitch={telemetry.Pitch:F2}, Bank={telemetry.Bank:F2} | Output: HeadX={HeadX:F3}, HeadY={HeadY:F3}, HeadZ={HeadZ:F3}, HeadPitch={HeadPitch:F3}, HeadRoll={HeadRoll:F3}");
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] [PhysicsEngine] Input: AccelX={telemetry.AccelX:F2}, AccelY={telemetry.AccelY:F2}, AccelZ={telemetry.AccelZ:F2}, VelX={telemetry.VelX:F2}, VelY={telemetry.VelY:F2}, VelZ={telemetry.VelZ:F2}, Pitch={telemetry.Pitch:F2}, Bank={telemetry.Bank:F2}, CamState={telemetry.CameraState} | Output: HeadX={HeadX:F3}, HeadY={HeadY:F3}, HeadZ={HeadZ:F3}, HeadPitch={HeadPitch:F3}, HeadRoll={HeadRoll:F3}");
             }
 #endif
+
+            // If we only want physics in the cockpit, and we are not in the cockpit (CameraState == 2),
+            // we set all external forces to 0. The spring-mass-damper will naturally return the head to center.
+            bool applyPhysics = !onlyInCockpit || telemetry.CameraState == 2;
 
             // 1. Calculate external forces based on aircraft acceleration
             // It turns out FreeTrack/MSFS expects +Z for backward and -Z for forward.
@@ -93,9 +98,9 @@ namespace MsfsPhysicsCamera
                 devZ = specificForceZ;
             }
 
-            double extForceX = devX * scaleX;
-            double extForceY = devY * scaleY;
-            double extForceZ = devZ * scaleZ;
+            double extForceX = applyPhysics ? devX * scaleX : 0;
+            double extForceY = applyPhysics ? devY * scaleY : 0;
+            double extForceZ = applyPhysics ? devZ * scaleZ : 0;
 
             // Update Spring-Mass-Damper for each axis
             UpdateAxis(ref HeadX, ref velX, extForceX, dt);
@@ -109,8 +114,8 @@ namespace MsfsPhysicsCamera
             // Pitch and Roll based on X/Z kinematic accelerations (head tilts forward when braking)
             // We use raw Accel here because using specific force (dev) causes the camera to counteract 
             // the aircraft's attitude (e.g. looking down while climbing, or rolling against the turn).
-            double extForcePitch = telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult;
-            double extForceRoll = telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult;
+            double extForcePitch = applyPhysics ? telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult : 0;
+            double extForceRoll = applyPhysics ? telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult : 0;
 
             UpdateAxis(ref HeadPitch, ref velPitch, extForcePitch, dt, k: 300, c: 40);
             UpdateAxis(ref HeadRoll, ref velRoll, extForceRoll, dt, k: 300, c: 40);

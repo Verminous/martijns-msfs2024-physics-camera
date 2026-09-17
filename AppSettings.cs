@@ -14,6 +14,7 @@ namespace MsfsPhysicsCamera
         public double RollMultiplier { get; set; } = 1.0;
 
         public bool SimulateGravity { get; set; } = true;
+        public bool OnlyInCockpit { get; set; } = true;
 
         public bool MinimizeOnStartup { get; set; } = false;
         public bool MinimizeToTray { get; set; } = false;

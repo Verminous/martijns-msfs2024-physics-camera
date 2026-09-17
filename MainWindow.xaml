@@ -7,114 +7,143 @@
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding StatusText}" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,0,0,15" />
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding StatusText}" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,0,0,15" />
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
-            <TextBlock Text="Telemetry Input" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-            
-            <TextBlock Text="Accel X (Lateral):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelX}" Height="20" />
-                <TextBlock Text="{Binding AccelX, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Accel Y (Vertical):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelY}" Height="20" />
-                <TextBlock Text="{Binding AccelY, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Accel Z (Longitudinal):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelZ}" Height="20" />
-                <TextBlock Text="{Binding AccelZ, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
+            <!-- Left Side (Telemetry, Physics, Settings) -->
+            <StackPanel Grid.Row="1" Grid.Column="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Vel X (Lateral):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelX}" Height="20" />
-                <TextBlock Text="{Binding VelX, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Vel Y (Vertical):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelY}" Height="20" />
-                <TextBlock Text="{Binding VelY, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Vel Z (Longitudinal):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelZ}" Height="20" />
-                <TextBlock Text="{Binding VelZ, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
+                    <!-- Telemetry Input -->
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                        <TextBlock Text="Telemetry Input" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
+                        
+                        <TextBlock Text="Accel X (Lateral):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelX}" Height="20" />
+                            <TextBlock Text="{Binding AccelX, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Accel Y (Vertical):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelY}" Height="20" />
+                            <TextBlock Text="{Binding AccelY, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Accel Z (Longitudinal):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelZ}" Height="20" />
+                            <TextBlock Text="{Binding AccelZ, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
 
-            <TextBlock Text="Plane Pitch (Deg):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlanePitch}" Height="20" />
-                <TextBlock Text="{Binding PlanePitch, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
+                        <TextBlock Text="Vel X (Lateral):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelX}" Height="20" />
+                            <TextBlock Text="{Binding VelX, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Vel Y (Vertical):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelY}" Height="20" />
+                            <TextBlock Text="{Binding VelY, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Vel Z (Longitudinal):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelZ}" Height="20" />
+                            <TextBlock Text="{Binding VelZ, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
 
-            <TextBlock Text="Plane Bank (Deg):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlaneBank}" Height="20" />
-                <TextBlock Text="{Binding PlaneBank, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-        </StackPanel>
+                        <TextBlock Text="Plane Pitch (Deg):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlanePitch}" Height="20" />
+                            <TextBlock Text="{Binding PlanePitch, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
 
-        <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,10,0">
-            <TextBlock Text="Physics Output (Head)" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-            
-            <TextBlock Text="Head X (Left/Right):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadX}" Height="20" />
-                <TextBlock Text="{Binding HeadX, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Head Y (Up/Down):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadY}" Height="20" />
-                <TextBlock Text="{Binding HeadY, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Head Z (Forward/Back):" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadZ}" Height="20" />
-                <TextBlock Text="{Binding HeadZ, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
+                        <TextBlock Text="Plane Bank (Deg):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlaneBank}" Height="20" />
+                            <TextBlock Text="{Binding PlaneBank, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                    </StackPanel>
 
-            <TextBlock Text="Pitch:" Margin="0,10,0,0" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadPitch}" Height="20" />
-                <TextBlock Text="{Binding HeadPitch, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Roll:" />
-            <Grid Margin="0,0,0,10">
-                <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadRoll}" Height="20" />
-                <TextBlock Text="{Binding HeadRoll, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-            </Grid>
-            
-            <TextBlock Text="Head Tracking" FontWeight="Bold" FontSize="16" Margin="0,20,0,10" />
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Ellipse x:Name="TrackingStatusIcon" Width="16" Height="16" Fill="Red" Margin="0,0,10,0" VerticalAlignment="Top" />
-                <TextBlock x:Name="TrackingStatusText" TextWrapping="Wrap" VerticalAlignment="Top" Width="220" />
+                    <!-- Physics Output -->
+                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
+                        <TextBlock Text="Physics Output (Head)" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
+                        
+                        <TextBlock Text="Head X (Left/Right):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadX}" Height="20" />
+                            <TextBlock Text="{Binding HeadX, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Head Y (Up/Down):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadY}" Height="20" />
+                            <TextBlock Text="{Binding HeadY, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Head Z (Forward/Back):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadZ}" Height="20" />
+                            <TextBlock Text="{Binding HeadZ, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+
+                        <TextBlock Text="Pitch:" Margin="0,10,0,0" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadPitch}" Height="20" />
+                            <TextBlock Text="{Binding HeadPitch, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Roll:" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadRoll}" Height="20" />
+                            <TextBlock Text="{Binding HeadRoll, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+                        
+                        <TextBlock Text="Head Tracking" FontWeight="Bold" FontSize="16" Margin="0,20,0,10" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Ellipse x:Name="TrackingStatusIcon" Width="16" Height="16" Fill="Red" Margin="0,0,10,0" VerticalAlignment="Top" />
+                            <TextBlock x:Name="TrackingStatusText" TextWrapping="Wrap" VerticalAlignment="Top" Width="220" />
+                        </StackPanel>
+                        <Border x:Name="TrackingRestartMsg" BorderBrush="Red" BorderThickness="2" CornerRadius="3" Padding="5" Margin="0,0,0,10" Visibility="Collapsed">
+                            <TextBlock Text="Flight Simulator must be restarted before this change takes effect." FontWeight="Bold" Foreground="DarkOrange" TextWrapping="Wrap" />
+                        </Border>
+                        <TextBlock x:Name="TrackingAccessDeniedMsg" Text="(Unable to verify if MSFS has loaded the tracking module due to permission restrictions)" FontStyle="Italic" Foreground="Gray" TextWrapping="Wrap" Margin="0,0,0,10" Visibility="Collapsed" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Settings -->
+                <StackPanel Margin="0,10,10,0">
+                    <TextBlock Text="Settings" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
+                    <WrapPanel>
+                        <CheckBox Content="Minimize on startup" IsChecked="{Binding MinimizeOnStartup}" Margin="0,0,10,10" VerticalAlignment="Center" />
+                        <CheckBox Content="Minimize to tray" IsChecked="{Binding MinimizeToTray}" Margin="0,0,10,10" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,10,10" VerticalAlignment="Center">
+                            <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}" VerticalAlignment="Center" />
+                            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center">
+                                <Hyperlink ToolTip="When enabled, applies a simulated gravity effect to the camera based on the aircraft's pitch and bank angles. Not everybody likes this, as it can feel like the camera is drifting.">
+                                    <Run Text="(?)"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                        <CheckBox Content="Only active in cockpit" IsChecked="{Binding OnlyInCockpit}" Margin="0,0,10,10" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </StackPanel>
             </StackPanel>
-            <Border x:Name="TrackingRestartMsg" BorderBrush="Red" BorderThickness="2" CornerRadius="3" Padding="5" Margin="0,0,0,10" Visibility="Collapsed">
-                <TextBlock Text="Flight Simulator must be restarted before this change takes effect." FontWeight="Bold" Foreground="DarkOrange" TextWrapping="Wrap" />
-            </Border>
-            <TextBlock x:Name="TrackingAccessDeniedMsg" Text="(Unable to verify if MSFS has loaded the tracking module due to permission restrictions)" FontStyle="Italic" Foreground="Gray" TextWrapping="Wrap" Margin="0,0,0,10" Visibility="Collapsed" />
-        </StackPanel>
 
-        <StackPanel Grid.Row="1" Grid.Column="2" Margin="10,0,0,0">
+            <!-- Right Side (Tweaking) -->
+            <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
             <TextBlock Text="Tweaking" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
             
             <TextBlock Text="Effects Multiplier (Global):" FontWeight="Bold" />
@@ -179,23 +208,6 @@
                 <TextBlock Text="{Binding TransZMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
                 <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
             </DockPanel>
-        </StackPanel>
-
-        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,10,0,0">
-            <TextBlock Text="Settings" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-            <StackPanel Orientation="Horizontal">
-                <CheckBox Content="Minimize on startup" IsChecked="{Binding MinimizeOnStartup}" Margin="0,0,10,0" VerticalAlignment="Center" />
-                <CheckBox Content="Minimize to tray" IsChecked="{Binding MinimizeToTray}" Margin="0,0,10,0" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" Margin="0,0,10,0" VerticalAlignment="Center">
-                    <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}" VerticalAlignment="Center" />
-                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center">
-                        <Hyperlink ToolTip="When enabled, applies a simulated gravity effect to the camera based on the aircraft's pitch and bank angles. Not everybody likes this, as it can feel like the camera is drifting.">
-                            <Run Text="(?)"/>
-                        </Hyperlink>
-                    </TextBlock>
-                </StackPanel>
-                <CheckBox Content="Only active in cockpit" IsChecked="{Binding OnlyInCockpit}" Margin="0,0,10,0" VerticalAlignment="Center" />
-            </StackPanel>
         </StackPanel>
     </Grid>
     </ScrollViewer>

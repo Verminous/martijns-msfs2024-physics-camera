@@ -21,6 +21,10 @@ namespace MsfsPhysicsCamera
         public double HeadPitch = 0;
         public double HeadRoll = 0;
 
+        public double? TestOverrideX = null;
+        public double? TestOverrideY = null;
+        public double? TestOverrideZ = null;
+
         private double velX = 0, velY = 0, velZ = 0;
         private double velPitch = 0, velRoll = 0;
 
@@ -43,6 +47,9 @@ namespace MsfsPhysicsCamera
             double transZMult = 1.0,
             double pitchMult = 1.0,
             double rollMult = 1.0,
+            double transXMin = -1.0, double transXMax = 1.0,
+            double transYMin = -1.0, double transYMax = 1.0,
+            double transZMin = -1.0, double transZMax = 1.0,
             bool simulateGravity = true,
             bool onlyInCockpit = true)
         {
@@ -103,13 +110,13 @@ namespace MsfsPhysicsCamera
             double extForceZ = applyPhysics ? devZ * scaleZ : 0;
 
             // Update Spring-Mass-Damper for each axis
-            UpdateAxis(ref HeadX, ref velX, extForceX, dt);
+            UpdateAxis(ref HeadX, ref velX, extForceX, dt, minClamp: transXMin, maxClamp: transXMax);
             
             // For Y-axis (vertical bumps), we want a much faster response (stiffer spring, lower mass effect)
             // so high frequency bumps from taxiing aren't completely swallowed by the low-pass filter effect.
-            UpdateAxis(ref HeadY, ref velY, extForceY, dt, k: 500, c: 40, m: 2.0);
+            UpdateAxis(ref HeadY, ref velY, extForceY, dt, k: 500, c: 40, m: 2.0, minClamp: transYMin, maxClamp: transYMax);
             
-            UpdateAxis(ref HeadZ, ref velZ, extForceZ, dt);
+            UpdateAxis(ref HeadZ, ref velZ, extForceZ, dt, minClamp: transZMin, maxClamp: transZMax);
             
             // Pitch and Roll based on X/Z kinematic accelerations (head tilts forward when braking)
             // We use raw Accel here because using specific force (dev) causes the camera to counteract 
@@ -119,9 +126,13 @@ namespace MsfsPhysicsCamera
 
             UpdateAxis(ref HeadPitch, ref velPitch, extForcePitch, dt, k: 300, c: 40);
             UpdateAxis(ref HeadRoll, ref velRoll, extForceRoll, dt, k: 300, c: 40);
+
+            if (TestOverrideX.HasValue) HeadX = TestOverrideX.Value;
+            if (TestOverrideY.HasValue) HeadY = TestOverrideY.Value;
+            if (TestOverrideZ.HasValue) HeadZ = TestOverrideZ.Value;
         }
 
-        private void UpdateAxis(ref double pos, ref double vel, double extForce, double dt, double? k = null, double? c = null, double? m = null)
+        private void UpdateAxis(ref double pos, ref double vel, double extForce, double dt, double? k = null, double? c = null, double? m = null, double? minClamp = null, double? maxClamp = null)
         {
             double actualK = k ?? springK;
             double actualC = c ?? damperC;
@@ -135,6 +146,17 @@ namespace MsfsPhysicsCamera
             
             vel += accel * dt;
             pos += vel * dt;
+
+            if (minClamp.HasValue && pos < minClamp.Value)
+            {
+                pos = minClamp.Value;
+                if (vel < 0) vel = 0;
+            }
+            if (maxClamp.HasValue && pos > maxClamp.Value)
+            {
+                pos = maxClamp.Value;
+                if (vel > 0) vel = 0;
+            }
         }
     }
 }

@@ -92,6 +92,48 @@ namespace MsfsPhysicsCamera
             set { if (_rollMultiplier != value) { _rollMultiplier = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMultiplier))); SaveSettings(); } }
         }
 
+        private double _transXMin = -1.0;
+        public double TransXMin
+        {
+            get => _transXMin;
+            set { if (_transXMin != value) { _transXMin = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransXMin))); SaveSettings(); } }
+        }
+
+        private double _transXMax = 1.0;
+        public double TransXMax
+        {
+            get => _transXMax;
+            set { if (_transXMax != value) { _transXMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransXMax))); SaveSettings(); } }
+        }
+
+        private double _transYMin = -1.0;
+        public double TransYMin
+        {
+            get => _transYMin;
+            set { if (_transYMin != value) { _transYMin = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransYMin))); SaveSettings(); } }
+        }
+
+        private double _transYMax = 1.0;
+        public double TransYMax
+        {
+            get => _transYMax;
+            set { if (_transYMax != value) { _transYMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransYMax))); SaveSettings(); } }
+        }
+
+        private double _transZMin = -1.0;
+        public double TransZMin
+        {
+            get => _transZMin;
+            set { if (_transZMin != value) { _transZMin = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransZMin))); SaveSettings(); } }
+        }
+
+        private double _transZMax = 1.0;
+        public double TransZMax
+        {
+            get => _transZMax;
+            set { if (_transZMax != value) { _transZMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransZMax))); SaveSettings(); } }
+        }
+
         private bool _simulateGravity = true;
         public bool SimulateGravity
         {
@@ -136,6 +178,12 @@ namespace MsfsPhysicsCamera
             _transZMultiplier = settings.TransZMultiplier;
             _pitchMultiplier = settings.PitchMultiplier;
             _rollMultiplier = settings.RollMultiplier;
+            _transXMin = settings.TransXMin;
+            _transXMax = settings.TransXMax;
+            _transYMin = settings.TransYMin;
+            _transYMax = settings.TransYMax;
+            _transZMin = settings.TransZMin;
+            _transZMax = settings.TransZMax;
             _simulateGravity = settings.SimulateGravity;
             _onlyInCockpit = settings.OnlyInCockpit;
             _minimizeOnStartup = settings.MinimizeOnStartup;
@@ -248,6 +296,12 @@ namespace MsfsPhysicsCamera
                 settings.TransZMultiplier = _transZMultiplier;
                 settings.PitchMultiplier = _pitchMultiplier;
                 settings.RollMultiplier = _rollMultiplier;
+                settings.TransXMin = _transXMin;
+                settings.TransXMax = _transXMax;
+                settings.TransYMin = _transYMin;
+                settings.TransYMax = _transYMax;
+                settings.TransZMin = _transZMin;
+                settings.TransZMax = _transZMax;
                 settings.SimulateGravity = _simulateGravity;
                 settings.OnlyInCockpit = _onlyInCockpit;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
@@ -288,7 +342,7 @@ namespace MsfsPhysicsCamera
                     else
                     {
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, SimulateGravity, OnlyInCockpit);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, SimulateGravity, OnlyInCockpit);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.
@@ -368,6 +422,13 @@ namespace MsfsPhysicsCamera
                 notifyIcon.Dispose();
             }
         }
+
+        private void RangeSliderX_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverrideX = e; }
+        private void RangeSliderX_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideX = null; }
+        private void RangeSliderY_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverrideY = e; }
+        private void RangeSliderY_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideY = null; }
+        private void RangeSliderZ_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverrideZ = e; }
+        private void RangeSliderZ_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideZ = null; }
 
         private void CheckRegistryStatus()
         {

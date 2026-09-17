@@ -13,6 +13,13 @@ namespace MsfsPhysicsCamera
         public double PitchMultiplier { get; set; } = 1.0;
         public double RollMultiplier { get; set; } = 1.0;
 
+        public double TransXMin { get; set; } = -1.0;
+        public double TransXMax { get; set; } = 1.0;
+        public double TransYMin { get; set; } = -1.0;
+        public double TransYMax { get; set; } = 1.0;
+        public double TransZMin { get; set; } = -1.0;
+        public double TransZMax { get; set; } = 1.0;
+
         public bool SimulateGravity { get; set; } = true;
         public bool OnlyInCockpit { get; set; } = true;
 

@@ -123,6 +123,12 @@
                 <Slider Minimum="-5" Maximum="5" Value="{Binding EffectMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
             </DockPanel>
 
+            <TextBlock Text="Return-to-Center Speed (Washout Filter):" ToolTip="Controls how quickly the camera returns to the center during sustained G-forces (like in a long turn). 0 = Disabled." />
+            <DockPanel Margin="0,5,0,10">
+                <TextBlock Text="{Binding WashoutStrength, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                <Slider Minimum="0" Maximum="10" Value="{Binding WashoutStrength}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+            </DockPanel>
+
             <TextBlock Text="Trans X Multiplier:" />
             <DockPanel Margin="0,5,0,10">
                 <TextBlock Text="{Binding TransXMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />

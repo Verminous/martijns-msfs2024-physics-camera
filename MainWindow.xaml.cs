@@ -134,6 +134,13 @@ namespace MsfsPhysicsCamera
             set { if (_transZMax != value) { _transZMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransZMax))); SaveSettings(); } }
         }
 
+        private double _washoutStrength = 0.0;
+        public double WashoutStrength
+        {
+            get => _washoutStrength;
+            set { if (_washoutStrength != value) { _washoutStrength = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WashoutStrength))); SaveSettings(); } }
+        }
+
         private bool _simulateGravity = true;
         public bool SimulateGravity
         {
@@ -184,6 +191,7 @@ namespace MsfsPhysicsCamera
             _transYMax = settings.TransYMax;
             _transZMin = settings.TransZMin;
             _transZMax = settings.TransZMax;
+            _washoutStrength = settings.WashoutStrength;
             _simulateGravity = settings.SimulateGravity;
             _onlyInCockpit = settings.OnlyInCockpit;
             _minimizeOnStartup = settings.MinimizeOnStartup;
@@ -302,6 +310,7 @@ namespace MsfsPhysicsCamera
                 settings.TransYMax = _transYMax;
                 settings.TransZMin = _transZMin;
                 settings.TransZMax = _transZMax;
+                settings.WashoutStrength = _washoutStrength;
                 settings.SimulateGravity = _simulateGravity;
                 settings.OnlyInCockpit = _onlyInCockpit;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
@@ -342,7 +351,7 @@ namespace MsfsPhysicsCamera
                     else
                     {
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, SimulateGravity, OnlyInCockpit);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, WashoutStrength, SimulateGravity, OnlyInCockpit);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.

@@ -28,6 +28,9 @@ namespace MsfsPhysicsCamera
         private double velX = 0, velY = 0, velZ = 0;
         private double velPitch = 0, velRoll = 0;
 
+        private double prevRawX = 0, prevRawY = 0, prevRawZ = 0;
+        private double filteredX = 0, filteredY = 0, filteredZ = 0;
+
 #if DEBUG
         private double debugTimeAccumulator = 0.0;
 #endif
@@ -50,6 +53,7 @@ namespace MsfsPhysicsCamera
             double transXMin = -1.0, double transXMax = 1.0,
             double transYMin = -1.0, double transYMax = 1.0,
             double transZMin = -1.0, double transZMax = 1.0,
+            double washoutStrength = 0.0,
             bool simulateGravity = true,
             bool onlyInCockpit = true)
         {
@@ -105,18 +109,32 @@ namespace MsfsPhysicsCamera
                 devZ = specificForceZ;
             }
 
-            double extForceX = applyPhysics ? devX * scaleX : 0;
-            double extForceY = applyPhysics ? devY * scaleY : 0;
-            double extForceZ = applyPhysics ? devZ * scaleZ : 0;
+            double rawX = applyPhysics ? devX * scaleX : 0;
+            double rawY = applyPhysics ? devY * scaleY : 0;
+            double rawZ = applyPhysics ? devZ * scaleZ : 0;
+
+            double alpha = 1.0;
+            if (washoutStrength > 0.001)
+            {
+                alpha = 1.0 / (1.0 + washoutStrength * dt);
+            }
+
+            filteredX = alpha * (filteredX + rawX - prevRawX);
+            filteredY = alpha * (filteredY + rawY - prevRawY);
+            filteredZ = alpha * (filteredZ + rawZ - prevRawZ);
+
+            prevRawX = rawX;
+            prevRawY = rawY;
+            prevRawZ = rawZ;
 
             // Update Spring-Mass-Damper for each axis
-            UpdateAxis(ref HeadX, ref velX, extForceX, dt, minClamp: transXMin, maxClamp: transXMax);
+            UpdateAxis(ref HeadX, ref velX, filteredX, dt, minClamp: transXMin, maxClamp: transXMax);
             
             // For Y-axis (vertical bumps), we want a much faster response (stiffer spring, lower mass effect)
             // so high frequency bumps from taxiing aren't completely swallowed by the low-pass filter effect.
-            UpdateAxis(ref HeadY, ref velY, extForceY, dt, k: 500, c: 40, m: 2.0, minClamp: transYMin, maxClamp: transYMax);
+            UpdateAxis(ref HeadY, ref velY, filteredY, dt, k: 500, c: 40, m: 2.0, minClamp: transYMin, maxClamp: transYMax);
             
-            UpdateAxis(ref HeadZ, ref velZ, extForceZ, dt, minClamp: transZMin, maxClamp: transZMax);
+            UpdateAxis(ref HeadZ, ref velZ, filteredZ, dt, minClamp: transZMin, maxClamp: transZMax);
             
             // Pitch and Roll based on X/Z kinematic accelerations (head tilts forward when braking)
             // We use raw Accel here because using specific force (dev) causes the camera to counteract 

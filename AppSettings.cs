@@ -27,6 +27,7 @@ namespace MsfsPhysicsCamera
 
         public bool MinimizeOnStartup { get; set; } = false;
         public bool MinimizeToTray { get; set; } = false;
+        public bool ExitWhenMsfsExits { get; set; } = false;
 
         public double? WindowTop { get; set; }
         public double? WindowLeft { get; set; }

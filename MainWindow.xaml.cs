@@ -169,6 +169,13 @@ namespace MsfsPhysicsCamera
             set { if (_minimizeToTray != value) { _minimizeToTray = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MinimizeToTray))); SaveSettings(); } }
         }
 
+        private bool _exitWhenMsfsExits;
+        public bool ExitWhenMsfsExits
+        {
+            get => _exitWhenMsfsExits;
+            set { if (_exitWhenMsfsExits != value) { _exitWhenMsfsExits = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExitWhenMsfsExits))); SaveSettings(); } }
+        }
+
         private AppSettings settings;
         private System.Windows.Forms.NotifyIcon? notifyIcon;
 
@@ -196,6 +203,7 @@ namespace MsfsPhysicsCamera
             _onlyInCockpit = settings.OnlyInCockpit;
             _minimizeOnStartup = settings.MinimizeOnStartup;
             _minimizeToTray = settings.MinimizeToTray;
+            _exitWhenMsfsExits = settings.ExitWhenMsfsExits;
 
             InitializeTrayIcon();
 
@@ -315,12 +323,14 @@ namespace MsfsPhysicsCamera
                 settings.OnlyInCockpit = _onlyInCockpit;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
                 settings.MinimizeToTray = _minimizeToTray;
+                settings.ExitWhenMsfsExits = _exitWhenMsfsExits;
                 settings.Save();
             }
         }
 
         private void PhysicsLoop()
         {
+            bool msfsWasRunning = false;
             try
             {
                 simConnect = new SimConnectHandler();
@@ -340,6 +350,12 @@ namespace MsfsPhysicsCamera
 
                     if (!simConnect.IsConnected)
                     {
+                        if (msfsWasRunning && ExitWhenMsfsExits)
+                        {
+                            Dispatcher.Invoke(() => this.Close());
+                            return;
+                        }
+
                         timeSinceLastReconnect += dt;
                         if (timeSinceLastReconnect > 2.0)
                         {
@@ -350,6 +366,7 @@ namespace MsfsPhysicsCamera
                     }
                     else
                     {
+                        msfsWasRunning = true;
                         var data = simConnect.CurrentData;
                         physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, WashoutStrength, SimulateGravity, OnlyInCockpit);
 

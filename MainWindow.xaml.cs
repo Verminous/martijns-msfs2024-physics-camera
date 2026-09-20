@@ -134,7 +134,7 @@ namespace MsfsPhysicsCamera
             set { if (_transZMax != value) { _transZMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransZMax))); SaveSettings(); } }
         }
 
-        private double _washoutStrength = 0.0;
+        private double _washoutStrength = 1.0;
         public double WashoutStrength
         {
             get => _washoutStrength;

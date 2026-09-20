@@ -20,7 +20,7 @@ namespace MsfsPhysicsCamera
         public double TransZMin { get; set; } = -1.0;
         public double TransZMax { get; set; } = 1.0;
 
-        public double WashoutStrength { get; set; } = 0.0;
+        public double WashoutStrength { get; set; } = 1.0;
 
         public bool SimulateGravity { get; set; } = true;
         public bool OnlyInCockpit { get; set; } = true;

@@ -31,7 +31,9 @@ namespace MsfsPhysicsCamera
         private double velPitch = 0, velRoll = 0;
 
         private double prevRawX = 0, prevRawY = 0, prevRawZ = 0;
+        private double prevRawPitch = 0, prevRawRoll = 0;
         private double filteredX = 0, filteredY = 0, filteredZ = 0;
+        private double filteredPitch = 0, filteredRoll = 0;
 
 #if DEBUG
         private double debugTimeAccumulator = 0.0;
@@ -143,11 +145,17 @@ namespace MsfsPhysicsCamera
             // Pitch and Roll based on X/Z kinematic accelerations (head tilts forward when braking)
             // We use raw Accel here because using specific force (dev) causes the camera to counteract 
             // the aircraft's attitude (e.g. looking down while climbing, or rolling against the turn).
-            double extForcePitch = applyPhysics ? telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult : 0;
-            double extForceRoll = applyPhysics ? telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult : 0;
+            double rawPitch = applyPhysics ? telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult : 0;
+            double rawRoll = applyPhysics ? telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult : 0;
 
-            UpdateAxis(ref HeadPitch, ref velPitch, extForcePitch, dt, k: 300, c: 40, minClamp: pitchMin, maxClamp: pitchMax);
-            UpdateAxis(ref HeadRoll, ref velRoll, extForceRoll, dt, k: 300, c: 40, minClamp: rollMin, maxClamp: rollMax);
+            filteredPitch = alpha * (filteredPitch + rawPitch - prevRawPitch);
+            filteredRoll = alpha * (filteredRoll + rawRoll - prevRawRoll);
+
+            prevRawPitch = rawPitch;
+            prevRawRoll = rawRoll;
+
+            UpdateAxis(ref HeadPitch, ref velPitch, filteredPitch, dt, k: 300, c: 40, minClamp: pitchMin, maxClamp: pitchMax);
+            UpdateAxis(ref HeadRoll, ref velRoll, filteredRoll, dt, k: 300, c: 40, minClamp: rollMin, maxClamp: rollMax);
 
             if (TestOverrideX.HasValue) HeadX = TestOverrideX.Value;
             if (TestOverrideY.HasValue) HeadY = TestOverrideY.Value;

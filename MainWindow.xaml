@@ -101,13 +101,13 @@
 
                         <TextBlock Text="Pitch:" />
                         <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadPitch}" Height="20" />
+                            <ProgressBar Minimum="-0.05" Maximum="0.05" Value="{Binding HeadPitch}" Height="20" />
                             <TextBlock Text="{Binding HeadPitch, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
                         </Grid>
                         
                         <TextBlock Text="Roll:" />
                         <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-0.5" Maximum="0.5" Value="{Binding HeadRoll}" Height="20" />
+                            <ProgressBar Minimum="-0.05" Maximum="0.05" Value="{Binding HeadRoll}" Height="20" />
                             <TextBlock Text="{Binding HeadRoll, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
                         </Grid>
                         
@@ -138,41 +138,84 @@
             <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
             <TextBlock Text="Tweaking" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
             
-            <TextBlock Text="Effects Multiplier (Global):" FontWeight="Bold" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding EffectMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" FontWeight="Bold"/>
-                <Slider Minimum="-5" Maximum="5" Value="{Binding EffectMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+            <Expander Header="Multipliers" IsExpanded="False" Margin="0,0,0,10">
+                <StackPanel Margin="0,5,0,0">
+                    <TextBlock Text="Effects Multiplier (Global):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding EffectMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding EffectMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
 
-            <TextBlock Text="Trans X Multiplier:" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransXMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="-5" Maximum="5" Value="{Binding TransXMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+                    <TextBlock Text="Trans X Multiplier:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransXMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransXMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
 
-            <TextBlock Text="Trans Y Multiplier:" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransYMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="-5" Maximum="5" Value="{Binding TransYMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+                    <TextBlock Text="Trans Y Multiplier:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransYMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransYMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
 
-            <TextBlock Text="Trans Z Multiplier:" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransZMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="-5" Maximum="5" Value="{Binding TransZMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+                    <TextBlock Text="Trans Z Multiplier:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransZMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransZMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
 
-            <TextBlock Text="Pitch Multiplier:" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding PitchMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="-5" Maximum="5" Value="{Binding PitchMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+                    <TextBlock Text="Pitch Multiplier:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding PitchMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding PitchMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
 
-            <TextBlock Text="Roll Multiplier:" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding RollMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="-5" Maximum="5" Value="{Binding RollMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-            </DockPanel>
+                    <TextBlock Text="Roll Multiplier:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding RollMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="-5" Maximum="5" Value="{Binding RollMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+                </StackPanel>
+            </Expander>
+
+            <Expander Header="Clamps" IsExpanded="False" Margin="0,0,0,10">
+                <StackPanel Margin="0,5,0,0">
+                    <TextBlock Text="Trans X Clamp (Min/Max):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransXMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TransXMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransXMin}" UpperValue="{Binding TransXMax}" TestClampRequested="RangeSliderX_TestClampRequested" TestClampEnded="RangeSliderX_TestClampEnded" />
+                    </DockPanel>
+
+                    <TextBlock Text="Trans Y Clamp (Min/Max):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransYMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TransYMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransYMin}" UpperValue="{Binding TransYMax}" TestClampRequested="RangeSliderY_TestClampRequested" TestClampEnded="RangeSliderY_TestClampEnded" />
+                    </DockPanel>
+
+                    <TextBlock Text="Trans Z Clamp (Min/Max):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TransZMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TransZMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
+                    </DockPanel>
+
+                    <TextBlock Text="Pitch Clamp (Min/Max):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding PitchMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding PitchMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
+                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding PitchMin}" UpperValue="{Binding PitchMax}" TestClampRequested="RangeSliderPitch_TestClampRequested" TestClampEnded="RangeSliderPitch_TestClampEnded" />
+                    </DockPanel>
+
+                    <TextBlock Text="Roll Clamp (Min/Max):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding RollMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding RollMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
+                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding RollMin}" UpperValue="{Binding RollMax}" TestClampRequested="RangeSliderRoll_TestClampRequested" TestClampEnded="RangeSliderRoll_TestClampEnded" />
+                    </DockPanel>
+                </StackPanel>
+            </Expander>
 
             <TextBlock Text="Return-to-Center Speed (Washout Filter):" ToolTip="Controls how quickly the camera returns to the center during sustained G-forces (like in a long turn). 0 = Disabled." />
             <DockPanel Margin="0,5,0,10">
@@ -180,45 +223,10 @@
                 <Slider Minimum="0" Maximum="10" Value="{Binding WashoutStrength}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
             </DockPanel>
 
-            <TextBlock Text="Trans X Clamp (Min/Max):" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransXMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding TransXMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransXMin}" UpperValue="{Binding TransXMax}" TestClampRequested="RangeSliderX_TestClampRequested" TestClampEnded="RangeSliderX_TestClampEnded" />
-            </DockPanel>
-
-            <TextBlock Text="Trans Y Clamp (Min/Max):" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransYMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding TransYMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransYMin}" UpperValue="{Binding TransYMax}" TestClampRequested="RangeSliderY_TestClampRequested" TestClampEnded="RangeSliderY_TestClampEnded" />
-            </DockPanel>
-
-            <TextBlock Text="Trans Z Clamp (Min/Max):" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding TransZMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding TransZMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
-            </DockPanel>
-
-            <TextBlock Text="Pitch Clamp (Min/Max):" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding PitchMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding PitchMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
-                <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding PitchMin}" UpperValue="{Binding PitchMax}" TestClampRequested="RangeSliderPitch_TestClampRequested" TestClampEnded="RangeSliderPitch_TestClampEnded" />
-            </DockPanel>
-
-            <TextBlock Text="Roll Clamp (Min/Max):" />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding RollMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding RollMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
-                <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding RollMin}" UpperValue="{Binding RollMax}" TestClampRequested="RangeSliderRoll_TestClampRequested" TestClampEnded="RangeSliderRoll_TestClampEnded" />
-            </DockPanel>
-
             <StackPanel Orientation="Horizontal" Margin="0,5,0,10" VerticalAlignment="Center">
                 <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}" VerticalAlignment="Center" />
                 <TextBlock Margin="5,0,0,0" VerticalAlignment="Center">
-                    <Hyperlink ToolTip="When enabled, applies a simulated gravity effect to the camera based on the aircraft's pitch and bank angles. Not everybody likes this, as it can feel like the camera is drifting.">
+                    <Hyperlink ToolTipService.InitialShowDelay="0" ToolTip="When enabled, applies a simulated gravity effect to the camera based on the aircraft's pitch and bank angles. Not everybody likes this, as it can feel like the camera is drifting.">
                         <Run Text="(?)"/>
                     </Hyperlink>
                 </TextBlock>

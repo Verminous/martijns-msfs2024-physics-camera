@@ -43,12 +43,29 @@ $foundPaths = @()
 foreach ($path in $possiblePaths) {
     if (Test-Path $path) {
         $foundPaths += $path
+    } else {
+        $dir = Split-Path $path
+        if (Test-Path $dir) {
+            Write-Host "Found MSFS installation at $dir, but exe.xml is missing. Creating it..."
+            $baseXml = @"
+<?xml version="1.0" encoding="utf-8"?>
+<SimBase.Document Type="Launch" version="1,0">
+  <Filename>exe.xml</Filename>
+</SimBase.Document>
+"@
+            try {
+                $baseXml | Out-File -FilePath $path -Encoding utf8 -ErrorAction Stop
+                $foundPaths += $path
+            } catch {
+                Write-Host "Failed to create exe.xml at $path : $_" -ForegroundColor Red
+            }
+        }
     }
 }
 
 if ($foundPaths.Count -eq 0) {
-    Write-Host "Could not find MSFS 2020 or 2024 exe.xml (checked MS Store and Steam paths)." -ForegroundColor Red
-    Write-Host "You may need to run MSFS at least once, or create it manually."
+    Write-Host "Could not find MSFS 2020 or 2024 installation (checked MS Store and Steam paths)." -ForegroundColor Red
+    Write-Host "You may need to run MSFS at least once, or create exe.xml manually."
     Pause
     exit
 }

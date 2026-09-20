@@ -41,15 +41,15 @@ Verified to work on:
 
 ## FAQ
 
-# I do see telemetry and output in the app while moving my airplane ingame, but my camera does not seem to react. Even at x5 multiplier. What gives?
+**I do see telemetry and output in the app while moving my airplane ingame, but my camera does not seem to react. Even at x5 multiplier. What gives?**
 
 If you haven't already, you might need to restart MSFS. When you launch the app for the first time, it enables the "TrackIR" controller. A restart of MSFS 2024 is needed to make it appear.
 
-# Can I use this app together with my head tracker (Tobii / TrackIR / Opentrack)?
+**Can I use this app together with my head tracker (Tobii / TrackIR / Opentrack)?**
 
 Unfortunately, no. Both your head tracker and this tool will send camera offsets to Flight Simulator. Flight Simulator will pick one over the other, or just alternate the inputs, which will manifest into weird behavior.
 
-# It feels like the camera is drifting at high speed or in turns
+**It feels like the camera is drifting at high speed or in turns**
 
 While ascending/descending the gravity weighs on your head while you're pitched up/down. Similarly in turns. Since v1.5 there are two settings that remedy this, of which one is enabled by default.
 * The "Return-to-center speed" (defaulting to 0.5) option will make the camera return to center slowly over time.

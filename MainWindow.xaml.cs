@@ -134,6 +134,34 @@ namespace MsfsPhysicsCamera
             set { if (_transZMax != value) { _transZMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TransZMax))); SaveSettings(); } }
         }
 
+        private double _pitchMin = -0.05;
+        public double PitchMin
+        {
+            get => _pitchMin;
+            set { if (_pitchMin != value) { _pitchMin = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PitchMin))); SaveSettings(); } }
+        }
+
+        private double _pitchMax = 0.05;
+        public double PitchMax
+        {
+            get => _pitchMax;
+            set { if (_pitchMax != value) { _pitchMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PitchMax))); SaveSettings(); } }
+        }
+
+        private double _rollMin = -0.05;
+        public double RollMin
+        {
+            get => _rollMin;
+            set { if (_rollMin != value) { _rollMin = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMin))); SaveSettings(); } }
+        }
+
+        private double _rollMax = 0.05;
+        public double RollMax
+        {
+            get => _rollMax;
+            set { if (_rollMax != value) { _rollMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMax))); SaveSettings(); } }
+        }
+
         private double _washoutStrength = 1.0;
         public double WashoutStrength
         {
@@ -198,6 +226,10 @@ namespace MsfsPhysicsCamera
             _transYMax = settings.TransYMax;
             _transZMin = settings.TransZMin;
             _transZMax = settings.TransZMax;
+            _pitchMin = settings.PitchMin;
+            _pitchMax = settings.PitchMax;
+            _rollMin = settings.RollMin;
+            _rollMax = settings.RollMax;
             _washoutStrength = settings.WashoutStrength;
             _simulateGravity = settings.SimulateGravity;
             _onlyInCockpit = settings.OnlyInCockpit;
@@ -318,6 +350,10 @@ namespace MsfsPhysicsCamera
                 settings.TransYMax = _transYMax;
                 settings.TransZMin = _transZMin;
                 settings.TransZMax = _transZMax;
+                settings.PitchMin = _pitchMin;
+                settings.PitchMax = _pitchMax;
+                settings.RollMin = _rollMin;
+                settings.RollMax = _rollMax;
                 settings.WashoutStrength = _washoutStrength;
                 settings.SimulateGravity = _simulateGravity;
                 settings.OnlyInCockpit = _onlyInCockpit;
@@ -368,7 +404,7 @@ namespace MsfsPhysicsCamera
                     {
                         msfsWasRunning = true;
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, WashoutStrength, SimulateGravity, OnlyInCockpit);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, PitchMin, PitchMax, RollMin, RollMax, WashoutStrength, SimulateGravity, OnlyInCockpit);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.
@@ -455,6 +491,10 @@ namespace MsfsPhysicsCamera
         private void RangeSliderY_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideY = null; }
         private void RangeSliderZ_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverrideZ = e; }
         private void RangeSliderZ_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideZ = null; }
+        private void RangeSliderPitch_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverridePitch = e; }
+        private void RangeSliderPitch_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverridePitch = null; }
+        private void RangeSliderRoll_TestClampRequested(object sender, double e) { if (physics != null) physics.TestOverrideRoll = e; }
+        private void RangeSliderRoll_TestClampEnded(object sender, EventArgs e) { if (physics != null) physics.TestOverrideRoll = null; }
 
         private void CheckRegistryStatus()
         {

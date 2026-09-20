@@ -27,11 +27,39 @@ namespace MsfsPhysicsCamera
             InitializeComponent();
         }
 
+        private bool _isUpdating = false;
+
         private static void OnValuesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is RangeSlider slider)
             {
+                if (slider._isUpdating) return;
+                slider._isUpdating = true;
+
+                double min = slider.Minimum;
+                double max = slider.Maximum;
+                double lower = slider.LowerValue;
+                double upper = slider.UpperValue;
+
+                bool changed = false;
+
+                if (lower < min) { lower = min; changed = true; }
+                if (upper > max) { upper = max; changed = true; }
+                if (lower > upper) 
+                { 
+                    if (e.Property == LowerValueProperty) { upper = lower; }
+                    else { lower = upper; }
+                    changed = true; 
+                }
+
+                if (changed)
+                {
+                    slider.LowerValue = lower;
+                    slider.UpperValue = upper;
+                }
+
                 slider.UpdateUI();
+                slider._isUpdating = false;
             }
         }
 

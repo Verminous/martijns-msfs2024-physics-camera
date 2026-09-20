@@ -201,6 +201,20 @@
                 <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
             </DockPanel>
 
+            <TextBlock Text="Pitch Clamp (Min/Max):" />
+            <DockPanel Margin="0,5,0,10">
+                <TextBlock Text="{Binding PitchMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding PitchMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
+                <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding PitchMin}" UpperValue="{Binding PitchMax}" TestClampRequested="RangeSliderPitch_TestClampRequested" TestClampEnded="RangeSliderPitch_TestClampEnded" />
+            </DockPanel>
+
+            <TextBlock Text="Roll Clamp (Min/Max):" />
+            <DockPanel Margin="0,5,0,10">
+                <TextBlock Text="{Binding RollMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding RollMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
+                <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding RollMin}" UpperValue="{Binding RollMax}" TestClampRequested="RangeSliderRoll_TestClampRequested" TestClampEnded="RangeSliderRoll_TestClampEnded" />
+            </DockPanel>
+
             <StackPanel Orientation="Horizontal" Margin="0,5,0,10" VerticalAlignment="Center">
                 <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}" VerticalAlignment="Center" />
                 <TextBlock Margin="5,0,0,0" VerticalAlignment="Center">

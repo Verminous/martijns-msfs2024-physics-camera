@@ -24,6 +24,8 @@ namespace MsfsPhysicsCamera
         public double? TestOverrideX = null;
         public double? TestOverrideY = null;
         public double? TestOverrideZ = null;
+        public double? TestOverridePitch = null;
+        public double? TestOverrideRoll = null;
 
         private double velX = 0, velY = 0, velZ = 0;
         private double velPitch = 0, velRoll = 0;
@@ -53,6 +55,8 @@ namespace MsfsPhysicsCamera
             double transXMin = -1.0, double transXMax = 1.0,
             double transYMin = -1.0, double transYMax = 1.0,
             double transZMin = -1.0, double transZMax = 1.0,
+            double pitchMin = -1.0, double pitchMax = 1.0,
+            double rollMin = -1.0, double rollMax = 1.0,
             double washoutStrength = 0.0,
             bool simulateGravity = true,
             bool onlyInCockpit = true)
@@ -142,12 +146,14 @@ namespace MsfsPhysicsCamera
             double extForcePitch = applyPhysics ? telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult : 0;
             double extForceRoll = applyPhysics ? telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult : 0;
 
-            UpdateAxis(ref HeadPitch, ref velPitch, extForcePitch, dt, k: 300, c: 40);
-            UpdateAxis(ref HeadRoll, ref velRoll, extForceRoll, dt, k: 300, c: 40);
+            UpdateAxis(ref HeadPitch, ref velPitch, extForcePitch, dt, k: 300, c: 40, minClamp: pitchMin, maxClamp: pitchMax);
+            UpdateAxis(ref HeadRoll, ref velRoll, extForceRoll, dt, k: 300, c: 40, minClamp: rollMin, maxClamp: rollMax);
 
             if (TestOverrideX.HasValue) HeadX = TestOverrideX.Value;
             if (TestOverrideY.HasValue) HeadY = TestOverrideY.Value;
             if (TestOverrideZ.HasValue) HeadZ = TestOverrideZ.Value;
+            if (TestOverridePitch.HasValue) HeadPitch = TestOverridePitch.Value;
+            if (TestOverrideRoll.HasValue) HeadRoll = TestOverrideRoll.Value;
         }
 
         private void UpdateAxis(ref double pos, ref double vel, double extForce, double dt, double? k = null, double? c = null, double? m = null, double? minClamp = null, double? maxClamp = null)

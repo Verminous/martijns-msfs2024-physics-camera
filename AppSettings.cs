@@ -19,6 +19,10 @@ namespace MsfsPhysicsCamera
         public double TransYMax { get; set; } = 1.0;
         public double TransZMin { get; set; } = -1.0;
         public double TransZMax { get; set; } = 1.0;
+        public double PitchMin { get; set; } = -0.05;
+        public double PitchMax { get; set; } = 0.05;
+        public double RollMin { get; set; } = -0.05;
+        public double RollMax { get; set; } = 0.05;
 
         public double WashoutStrength { get; set; } = 1.0;
 

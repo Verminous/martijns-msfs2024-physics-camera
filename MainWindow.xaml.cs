@@ -162,7 +162,7 @@ namespace MsfsPhysicsCamera
             set { if (_rollMax != value) { _rollMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMax))); SaveSettings(); } }
         }
 
-        private double _washoutStrength = 1.0;
+        private double _washoutStrength = 0.5;
         public double WashoutStrength
         {
             get => _washoutStrength;

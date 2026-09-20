@@ -24,7 +24,7 @@ namespace MsfsPhysicsCamera
         public double RollMin { get; set; } = -0.05;
         public double RollMax { get; set; } = 0.05;
 
-        public double WashoutStrength { get; set; } = 1.0;
+        public double WashoutStrength { get; set; } = 0.5;
 
         public bool SimulateGravity { get; set; } = true;
         public bool OnlyInCockpit { get; set; } = true;

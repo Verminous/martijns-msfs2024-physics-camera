@@ -20,6 +20,7 @@ namespace MsfsPhysicsCamera
         public double HeadZ = 0;
         public double HeadPitch = 0;
         public double HeadRoll = 0;
+        public double HeadYaw = 0;   // radians, positive = look right (look into turns)
 
         public double? TestOverrideX = null;
         public double? TestOverrideY = null;
@@ -29,6 +30,11 @@ namespace MsfsPhysicsCamera
 
         private double velX = 0, velY = 0, velZ = 0;
         private double velPitch = 0, velRoll = 0;
+        private double velYaw = 0;
+        private double filteredBankDeg = 0;
+        private double prevBankDeg = 0;
+        private double rollRateDegPerSec = 0;
+        private double heldUrgency = 1.0;
 
         private double prevRawX = 0, prevRawY = 0, prevRawZ = 0;
         private double prevRawPitch = 0, prevRawRoll = 0;
@@ -47,6 +53,25 @@ namespace MsfsPhysicsCamera
         private const double SCALE_ROT_PITCH = -0.05;
         private const double SCALE_ROT_ROLL = 0.05;
 
+        // Look into turns: above the start angle the turn eases in quadratically over this many degrees
+        // of bank, then continues linearly (same slope), so crossing the start angle gives no sudden kick.
+        private const double TURN_LOOK_SOFT_ZONE_DEG = 10.0;
+        // Sign between PLANE BANK DEGREES and a head turn towards the inside of the turn.
+        private const double TURN_LOOK_SIGN = 1.0;
+        // Head turn speed: a critically damped spring (m = 1) with natural frequency omega. The base 2 rad/s
+        // (k = 4, c = 4) settles on its target in about 1.5 s; the speed slider and the urgency scale omega.
+        private const double TURN_LOOK_OMEGA = 2.0;
+        // Urgency from roll rate: rolling faster than a gentle roll-in makes the head react and move faster.
+        private const double ROLL_RATE_GENTLE_DEG = 8.0;    // deg/s, normal roll-in into a turn
+        private const double ROLL_RATE_REF_DEG = 10.0;      // deg/s above gentle per +1x urgency (at 1.0 sensitivity)
+        private const double ROLL_RATE_SMOOTH_SEC = 0.15;   // light smoothing of the bank-angle derivative
+        private const double URGENCY_MAX = 4.0;
+        // A sharp roll lasts well under a second; the urgency fades back to 1 over this time constant, so
+        // the head finishes its turn quickly instead of slowing down the moment the wings stop rolling.
+        private const double URGENCY_HOLD_SEC = 2.0;
+        // Explicit integration stays well-behaved while c * dt stays small; faster heads use sub-steps.
+        private const double MAX_DAMPING_STEP = 0.5;
+
         public void Update(SimConnectHandler.TelemetryData telemetry, double dt, 
             double effectMultiplier = 1.0,
             double transXMult = 1.0,
@@ -61,7 +86,14 @@ namespace MsfsPhysicsCamera
             double rollMin = -1.0, double rollMax = 1.0,
             double washoutStrength = 0.0,
             bool simulateGravity = true,
-            bool onlyInCockpit = true)
+            bool onlyInCockpit = true,
+            bool lookIntoTurns = false,
+            double turnLookStrength = 1.0,
+            double turnLookMaxDeg = 25.0,
+            double turnLookStartDeg = 10.0,
+            double turnLookReactionSec = 1.0,
+            double turnLookSpeed = 1.0,
+            double turnLookSnap = 1.0)
         {
             if (dt <= 0) return;
             dt = Math.Min(dt, DT_MAX);
@@ -156,6 +188,50 @@ namespace MsfsPhysicsCamera
 
             UpdateAxis(ref HeadPitch, ref velPitch, filteredPitch, dt, k: 300, c: 40, minClamp: pitchMin, maxClamp: pitchMax);
             UpdateAxis(ref HeadRoll, ref velRoll, filteredRoll, dt, k: 300, c: 40, minClamp: rollMin, maxClamp: rollMax);
+
+            // Look into turns. In a coordinated turn the sideways acceleration is close to zero, so nothing
+            // above moves the head towards the turn. Pilots turn their head into a turn they have committed
+            // to, roughly in proportion to the bank angle, but not for small corrections. So:
+            // 1. the bank is averaged over the reaction time (first-order low-pass), so short wobbles from
+            //    gusts or corrections average out while a held bank builds up;
+            // 2. bank below the start angle is ignored;
+            // 3. above it the turn eases in (soft zone) and is capped at the maximum;
+            // 4. a sharp roll is urgent: the faster the bank changes, the shorter the averaging and the
+            //    faster the head moves (a gentle roll-in keeps the normal speed).
+            double bankDeg = bank * (180.0 / Math.PI);
+            double rawRollRate = Math.Abs(bankDeg - prevBankDeg) / dt;
+            prevBankDeg = bankDeg;
+            rollRateDegPerSec += (rawRollRate - rollRateDegPerSec) * (dt / (ROLL_RATE_SMOOTH_SEC + dt));
+            double urgencyNow = 1.0 + turnLookSnap * Math.Max(0.0, rollRateDegPerSec - ROLL_RATE_GENTLE_DEG) / ROLL_RATE_REF_DEG;
+            heldUrgency = 1.0 + (heldUrgency - 1.0) * Math.Exp(-dt / URGENCY_HOLD_SEC);
+            heldUrgency = Math.Max(heldUrgency, urgencyNow);
+            double urgency = Math.Min(heldUrgency, URGENCY_MAX);
+
+            double reactionSec = turnLookReactionSec / urgency;
+            filteredBankDeg = reactionSec > 0.01
+                ? filteredBankDeg + (bankDeg - filteredBankDeg) * (dt / (reactionSec + dt))
+                : bankDeg;
+
+            double targetYaw = 0;
+            if (applyPhysics && lookIntoTurns)
+            {
+                double excessDeg = Math.Max(0.0, Math.Abs(filteredBankDeg) - turnLookStartDeg);
+                double easedDeg = excessDeg < TURN_LOOK_SOFT_ZONE_DEG
+                    ? excessDeg * excessDeg / (2.0 * TURN_LOOK_SOFT_ZONE_DEG)
+                    : excessDeg - TURN_LOOK_SOFT_ZONE_DEG / 2.0;
+                double yawDeg = Math.Min(easedDeg * turnLookStrength, turnLookMaxDeg);
+                targetYaw = TURN_LOOK_SIGN * Math.Sign(filteredBankDeg) * yawDeg * (Math.PI / 180.0);
+            }
+            // A critically damped spring towards the target (equilibrium where -k * pos + k * target = 0),
+            // in sub-steps when it is fast so the explicit integration never overshoots.
+            double omega = TURN_LOOK_OMEGA * Math.Max(0.05, turnLookSpeed) * urgency;
+            double yawK = omega * omega;
+            double yawC = 2.0 * omega;
+            int steps = Math.Max(1, (int)Math.Ceiling(yawC * dt / MAX_DAMPING_STEP));
+            for (int i = 0; i < steps; i++)
+            {
+                UpdateAxis(ref HeadYaw, ref velYaw, yawK * targetYaw, dt / steps, k: yawK, c: yawC, m: 1.0);
+            }
 
             if (TestOverrideX.HasValue) HeadX = TestOverrideX.Value;
             if (TestOverrideY.HasValue) HeadY = TestOverrideY.Value;

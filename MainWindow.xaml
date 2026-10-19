@@ -110,7 +110,13 @@
                             <ProgressBar Minimum="-0.05" Maximum="0.05" Value="{Binding HeadRoll}" Height="20" />
                             <TextBlock Text="{Binding HeadRoll, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
                         </Grid>
-                        
+
+                        <TextBlock Text="Yaw (Look into turn):" />
+                        <Grid Margin="0,0,0,10">
+                            <ProgressBar Minimum="-60" Maximum="60" Value="{Binding HeadYawDeg}" Height="20" />
+                            <TextBlock Text="{Binding HeadYawDeg, StringFormat={}{0:F1}°}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
+                        </Grid>
+
                         <TextBlock Text="Virtual Head Tracking" FontWeight="Bold" FontSize="16" Margin="0,20,0,10" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <Ellipse x:Name="TrackingStatusIcon" Width="16" Height="16" Fill="Red" Margin="0,0,10,0" VerticalAlignment="Top" />
@@ -137,7 +143,49 @@
             <!-- Right Side (Tweaking) -->
             <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
             <TextBlock Text="Tweaking" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-            
+
+            <Expander Header="Look into turns" IsExpanded="True" Margin="0,0,0,10">
+                <StackPanel Margin="0,5,0,0">
+                    <CheckBox Content="Turn head into turns" IsChecked="{Binding LookIntoTurns}" Margin="0,0,0,10" VerticalAlignment="Center" ToolTip="Turns the view towards the inside of a turn you hold, in proportion to the bank angle. Short or small banks (corrections, gusts) are ignored." />
+
+                    <TextBlock Text="Start at bank angle:" ToolTip="Bank below this angle never turns the head. Raise it if small corrections still move the view." />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookStart, StringFormat={}{0:F0}°}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="30" Value="{Binding TurnLookStart}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+
+                    <TextBlock Text="Reaction time (ignore short banks):" ToolTip="The head follows the bank averaged over this time, so brief wobbles average out and a held turn builds up. 0 = follow the bank instantly." />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookReaction, StringFormat={}{0:F1} s}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookReaction}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+
+                    <TextBlock Text="Head turn speed:" ToolTip="How fast the head moves to where it should look. 1.0x settles in about 1.5 s." />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookSpeed, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0.25" Maximum="3" Value="{Binding TurnLookSpeed}" TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+
+                    <TextBlock Text="Quicker on sharp banking:" ToolTip="The faster the bank changes, the faster the head reacts and moves (gentle roll-ins keep the normal speed). 0 = always the same speed." />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookSnap, StringFormat={}{0:F1}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookSnap}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+
+                    <TextBlock Text="Intensity (head turn per degree of bank):" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookStrength, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookStrength}" TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+
+                    <TextBlock Text="Maximum head turn:" />
+                    <DockPanel Margin="0,5,0,10">
+                        <TextBlock Text="{Binding TurnLookMax, StringFormat={}{0:F0}°}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="60" Value="{Binding TurnLookMax}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                    </DockPanel>
+                </StackPanel>
+            </Expander>
+
             <Expander Header="Multipliers" IsExpanded="False" Margin="0,0,0,10">
                 <StackPanel Margin="0,5,0,0">
                     <TextBlock Text="Effects Multiplier (Global):" />

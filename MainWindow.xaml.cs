@@ -12,6 +12,8 @@ namespace MsfsPhysicsCamera
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private const double MAX_YAW_RAD = 60.0 * Math.PI / 180.0;
+
         private SimConnectHandler? simConnect;
         private FreeTrackInjector? injector;
         private PhysicsEngine physics;
@@ -41,6 +43,7 @@ namespace MsfsPhysicsCamera
         public double HeadZ { get; set; }
         public double HeadPitch { get; set; }
         public double HeadRoll { get; set; }
+        public double HeadYawDeg { get; set; }
 
         private double _effectMultiplier = 1.0;
         public double EffectMultiplier
@@ -162,7 +165,7 @@ namespace MsfsPhysicsCamera
             set { if (_rollMax != value) { _rollMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RollMax))); SaveSettings(); } }
         }
 
-        private double _washoutStrength = 0.5;
+        private double _washoutStrength = 0.7;
         public double WashoutStrength
         {
             get => _washoutStrength;
@@ -181,6 +184,55 @@ namespace MsfsPhysicsCamera
         {
             get => _onlyInCockpit;
             set { if (_onlyInCockpit != value) { _onlyInCockpit = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OnlyInCockpit))); SaveSettings(); } }
+        }
+
+        private bool _lookIntoTurns = true;
+        public bool LookIntoTurns
+        {
+            get => _lookIntoTurns;
+            set { if (_lookIntoTurns != value) { _lookIntoTurns = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LookIntoTurns))); SaveSettings(); } }
+        }
+
+        private double _turnLookStrength = 1.0;
+        public double TurnLookStrength
+        {
+            get => _turnLookStrength;
+            set { if (_turnLookStrength != value) { _turnLookStrength = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookStrength))); SaveSettings(); } }
+        }
+
+        private double _turnLookMax = 25.0;
+        public double TurnLookMax
+        {
+            get => _turnLookMax;
+            set { if (_turnLookMax != value) { _turnLookMax = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookMax))); SaveSettings(); } }
+        }
+
+        private double _turnLookStart = 10.0;
+        public double TurnLookStart
+        {
+            get => _turnLookStart;
+            set { if (_turnLookStart != value) { _turnLookStart = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookStart))); SaveSettings(); } }
+        }
+
+        private double _turnLookReaction = 1.0;
+        public double TurnLookReaction
+        {
+            get => _turnLookReaction;
+            set { if (_turnLookReaction != value) { _turnLookReaction = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookReaction))); SaveSettings(); } }
+        }
+
+        private double _turnLookSpeed = 1.0;
+        public double TurnLookSpeed
+        {
+            get => _turnLookSpeed;
+            set { if (_turnLookSpeed != value) { _turnLookSpeed = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookSpeed))); SaveSettings(); } }
+        }
+
+        private double _turnLookSnap = 1.0;
+        public double TurnLookSnap
+        {
+            get => _turnLookSnap;
+            set { if (_turnLookSnap != value) { _turnLookSnap = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TurnLookSnap))); SaveSettings(); } }
         }
 
         private bool _minimizeOnStartup;
@@ -233,6 +285,13 @@ namespace MsfsPhysicsCamera
             _washoutStrength = settings.WashoutStrength;
             _simulateGravity = settings.SimulateGravity;
             _onlyInCockpit = settings.OnlyInCockpit;
+            _lookIntoTurns = settings.LookIntoTurns;
+            _turnLookStrength = settings.TurnLookStrength;
+            _turnLookMax = settings.TurnLookMax;
+            _turnLookStart = settings.TurnLookStart;
+            _turnLookReaction = settings.TurnLookReaction;
+            _turnLookSpeed = settings.TurnLookSpeed;
+            _turnLookSnap = settings.TurnLookSnap;
             _minimizeOnStartup = settings.MinimizeOnStartup;
             _minimizeToTray = settings.MinimizeToTray;
             _exitWhenMsfsExits = settings.ExitWhenMsfsExits;
@@ -357,6 +416,13 @@ namespace MsfsPhysicsCamera
                 settings.WashoutStrength = _washoutStrength;
                 settings.SimulateGravity = _simulateGravity;
                 settings.OnlyInCockpit = _onlyInCockpit;
+                settings.LookIntoTurns = _lookIntoTurns;
+                settings.TurnLookStrength = _turnLookStrength;
+                settings.TurnLookMax = _turnLookMax;
+                settings.TurnLookStart = _turnLookStart;
+                settings.TurnLookReaction = _turnLookReaction;
+                settings.TurnLookSpeed = _turnLookSpeed;
+                settings.TurnLookSnap = _turnLookSnap;
                 settings.MinimizeOnStartup = _minimizeOnStartup;
                 settings.MinimizeToTray = _minimizeToTray;
                 settings.ExitWhenMsfsExits = _exitWhenMsfsExits;
@@ -404,7 +470,7 @@ namespace MsfsPhysicsCamera
                     {
                         msfsWasRunning = true;
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, PitchMin, PitchMax, RollMin, RollMax, WashoutStrength, SimulateGravity, OnlyInCockpit);
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, PitchMin, PitchMax, RollMin, RollMax, WashoutStrength, SimulateGravity, OnlyInCockpit, LookIntoTurns, TurnLookStrength, TurnLookMax, TurnLookStart, TurnLookReaction, TurnLookSpeed, TurnLookSnap);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.
@@ -413,7 +479,10 @@ namespace MsfsPhysicsCamera
                         float ftZ = (float)(physics.HeadZ * 160.0);
                         float ftPitch = (float)(physics.HeadPitch * 16.0);
                         float ftRoll = (float)(physics.HeadRoll * 16.0);
-                        float ftYaw = 0f;
+                        // Yaw goes out 1:1 in radians. With the x16 used for pitch/roll, a 15-25 degree look
+                        // into a turn became a 240-400 degree spin (looking backwards) in MSFS 2024.
+                        // Hard limit as a safety net: never more than 60 degrees either way.
+                        float ftYaw = (float)Math.Clamp(physics.HeadYaw, -MAX_YAW_RAD, MAX_YAW_RAD);
 
                         injector.Update(ftX, ftY, ftZ, ftPitch, ftRoll, ftYaw);
                     }
@@ -448,6 +517,7 @@ namespace MsfsPhysicsCamera
                 HeadZ = physics.HeadZ;
                 HeadPitch = physics.HeadPitch;
                 HeadRoll = physics.HeadRoll;
+                HeadYawDeg = physics.HeadYaw * (180.0 / Math.PI);
 
                 // Notify UI
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));

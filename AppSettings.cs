@@ -24,10 +24,21 @@ namespace MsfsPhysicsCamera
         public double RollMin { get; set; } = -0.05;
         public double RollMax { get; set; } = 0.05;
 
-        public double WashoutStrength { get; set; } = 0.5;
+        public double WashoutStrength { get; set; } = 0.7;
 
         public bool SimulateGravity { get; set; } = true;
         public bool OnlyInCockpit { get; set; } = true;
+
+        // Defaults from flight training practice: a standard-rate turn needs about airspeed/10 + 7 degrees
+        // of bank (about 16 degrees at 90 kt), small heading corrections about half of that, so heads
+        // start turning at 10 degrees of held bank; a 20-25 degree look keeps the instruments in view.
+        public bool LookIntoTurns { get; set; } = true;
+        public double TurnLookStrength { get; set; } = 1.0;
+        public double TurnLookMax { get; set; } = 25.0;
+        public double TurnLookStart { get; set; } = 10.0;
+        public double TurnLookReaction { get; set; } = 1.0;
+        public double TurnLookSpeed { get; set; } = 1.0;
+        public double TurnLookSnap { get; set; } = 1.0;
 
         public bool MinimizeOnStartup { get; set; } = false;
         public bool MinimizeToTray { get; set; } = false;

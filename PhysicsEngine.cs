@@ -35,6 +35,25 @@ namespace MsfsPhysicsCamera
         private double prevBankDeg = 0;
         private double rollRateDegPerSec = 0;
         private double heldUrgency = 1.0;
+        private double rollRateSignedDegPerSec = 0;
+        private double airborneSec = 0;
+        private double heldLookDeg = 0;
+        private bool inTransit = false;
+        private double transitSlowSec = 0;
+        private double rollSec = 0, rollTravelDeg = 0, rollSlowSec = 0;
+        private int rollDir = 0;
+        private double prevRollRateSignedDegPerSec = 0, rollAccelDegPerSec2 = 0;
+        private double transitAnchorBankDeg = 0, transitAnchorLookDeg = 0;
+
+        // Why the head is (not) being moved, for the window's status line and the diagnostic log.
+        public bool InCockpit { get; private set; }
+        public bool Parked { get; private set; }
+        public bool UserOnFoot { get; private set; }
+        public double MotionGain { get; private set; } = 1.0;
+        public double TurnReversal { get; private set; }
+        public double LookTargetDeg { get; private set; }   // where look-into-turns is steering the head (before the spring)
+        public double Urgency { get; private set; } = 1.0;
+        public double TurnLead { get; private set; }   // 1 while the head looks ahead in a deliberate roll (point 6)
 
         private double prevRawX = 0, prevRawY = 0, prevRawZ = 0;
         private double prevRawPitch = 0, prevRawRoll = 0;
@@ -71,6 +90,56 @@ namespace MsfsPhysicsCamera
         private const double URGENCY_HOLD_SEC = 2.0;
         // Explicit integration stays well-behaved while c * dt stays small; faster heads use sub-steps.
         private const double MAX_DAMPING_STEP = 0.5;
+        // Roll towards level while the head is turned (a roll-out or the first half of a reversal), at any speed
+        // above a gentle drift: the head has been turned more than TRANSIT_HEAD_DEG within about the last second and
+        // the bank moves towards level faster than TRANSIT_ROLL_RATE_ON_DEG. The normal target would bring the head
+        // to the centre while the bank is still above the start angle and hold it there while the bank sweeps through
+        // level (a visible pause in a reversal), and keep it at the maximum while a steep bank first comes down.
+        // Instead the head follows the bank in proportion, from where it is to the centre exactly at level, and on
+        // through it until the other side's normal target is larger. The sweep ends only when the roll has stayed
+        // below TRANSIT_ROLL_RATE_OFF_DEG (or turned back) for TRANSIT_END_SEC; if the roll picks up again in the same
+        // direction while the sweep is still fading (weight above TRANSIT_RESUME_WEIGHT), the same sweep continues.
+        // Without that, a roll rate hovering at the threshold restarted the sweep from the lagging head again and
+        // again, which held the head in place (logged 2026-10-19 22:52:19, a jet rolling at about 45 deg/s).
+        // After the sweep the normal target takes over again over TRANSIT_RELEASE_SEC.
+        private const double TRANSIT_HEAD_DEG = 2.0;
+        private const double TRANSIT_HEAD_MEMORY_SEC = 1.0;
+        private const double TRANSIT_ROLL_RATE_ON_DEG = 6.0;
+        private const double TRANSIT_ROLL_RATE_OFF_DEG = 3.0;
+        private const double TRANSIT_END_SEC = 0.25;
+        private const double TRANSIT_RESUME_WEIGHT = 0.3;
+        private const double TRANSIT_MIN_BANK_DEG = 3.0;
+        private const double TRANSIT_RELEASE_SEC = 1.0;
+        // Looking ahead in a deliberate roll (into a turn, out of it, or through a reversal). Pilots look where they
+        // are rolling to; tied to the averaged bank and a gentle head, the head in a slowly rolling aircraft trailed
+        // the wings by about 2 s on a roll-in (Cessna, logged 2026-10-19 23:16-23:17: 6 to 12 deg/s of roll, 2 to 6
+        // deg/s of head). Deliberate = the bank has moved the same way for LEAD_ROLL_SEC and over
+        // LEAD_ROLL_TRAVEL_DEG, longer and larger than a turbulence bump or a small correction; a sweep (point 5)
+        // that has passed level counts at once. Then the head aims at the actual bank plus LEAD_SEC of roll (at most
+        // LEAD_MAX_DEG, and never past where a slowing roll will stop), skipping the averaging, and moves at least
+        // LEAD_MIN_URGENCY times its normal speed. Fades in over LEAD_RISE_SEC and out over LEAD_FALL_SEC.
+        // Why only half a second: the app cannot know where the pilot will stop rolling. With 1 s the head ran
+        // about 6° past its final angle in a Cessna roll-in and came back; with 0.5 s it arrives with the wings and
+        // settles about 2°. On a plain roll-out it drifts at most about 1° past the centre.
+        private const double LEAD_ROLL_SEC = 0.6;
+        private const double LEAD_ROLL_TRAVEL_DEG = 12.0;
+        private const double LEAD_SEC = 0.5;
+        private const double LEAD_MAX_DEG = 5.0;
+        private const double LEAD_RISE_SEC = 0.15;
+        private const double LEAD_FALL_SEC = 0.5;
+        private const double LEAD_MIN_URGENCY = 3.0;
+
+        // Standing still on the ground: nothing there should throw the pilot's head around, but the sim can
+        // keep a wreck (or a parked aircraft) jittering, which the accelerations pass straight on to the head.
+        // Parked below PARKED_BELOW_KT ground speed, moving again above PARKED_ABOVE_KT (hysteresis).
+        private const double PARKED_BELOW_KT = 1.0;
+        private const double PARKED_ABOVE_KT = 2.0;
+        // Leaving the ground also ends it, but only after this long in the air: a bouncing wreck flickers
+        // SIM ON GROUND off for a few tenths of a second (logged 2026-10-19), a helicopter lifting off does not.
+        private const double PARKED_AIRBORNE_SEC = 0.5;
+        // Head motion fades in and out over this time constant instead of switching, so pausing or resuming
+        // (camera change, getting out, stopping) gives no kick.
+        private const double MOTION_FADE_SEC = 0.3;
 
         public void Update(SimConnectHandler.TelemetryData telemetry, double dt, 
             double effectMultiplier = 1.0,
@@ -93,7 +162,8 @@ namespace MsfsPhysicsCamera
             double turnLookStartDeg = 10.0,
             double turnLookReactionSec = 1.0,
             double turnLookSpeed = 1.0,
-            double turnLookSnap = 1.0)
+            double turnLookSnap = 1.0,
+            bool userOnFoot = false)
         {
             if (dt <= 0) return;
             dt = Math.Min(dt, DT_MAX);
@@ -109,7 +179,15 @@ namespace MsfsPhysicsCamera
 
             // If we only want physics in the cockpit, and we are not in the cockpit (CameraState == 2),
             // we set all external forces to 0. The spring-mass-damper will naturally return the head to center.
-            bool applyPhysics = !onlyInCockpit || telemetry.CameraState == 2;
+            // The same when the pilot is out walking (MSFS 2024 still reports CameraState 2 then) or the aircraft
+            // stands still on the ground. The forces fade out and in over MOTION_FADE_SEC.
+            InCockpit = !onlyInCockpit || telemetry.CameraState == 2;
+            airborneSec = telemetry.SimOnGround != 0 ? 0.0 : airborneSec + dt;
+            if (telemetry.SimOnGround != 0 && telemetry.GroundVelocity < PARKED_BELOW_KT) Parked = true;
+            else if (airborneSec > PARKED_AIRBORNE_SEC || telemetry.GroundVelocity > PARKED_ABOVE_KT) Parked = false;
+            UserOnFoot = userOnFoot;
+            bool applyPhysics = InCockpit && !UserOnFoot && !Parked;
+            MotionGain += ((applyPhysics ? 1.0 : 0.0) - MotionGain) * (dt / (MOTION_FADE_SEC + dt));
 
             // 1. Calculate external forces based on aircraft acceleration
             // It turns out FreeTrack/MSFS expects +Z for backward and -Z for forward.
@@ -147,9 +225,9 @@ namespace MsfsPhysicsCamera
                 devZ = specificForceZ;
             }
 
-            double rawX = applyPhysics ? devX * scaleX : 0;
-            double rawY = applyPhysics ? devY * scaleY : 0;
-            double rawZ = applyPhysics ? devZ * scaleZ : 0;
+            double rawX = MotionGain * devX * scaleX;
+            double rawY = MotionGain * devY * scaleY;
+            double rawZ = MotionGain * devZ * scaleZ;
 
             double alpha = 1.0;
             if (washoutStrength > 0.001)
@@ -177,8 +255,8 @@ namespace MsfsPhysicsCamera
             // Pitch and Roll based on X/Z kinematic accelerations (head tilts forward when braking)
             // We use raw Accel here because using specific force (dev) causes the camera to counteract 
             // the aircraft's attitude (e.g. looking down while climbing, or rolling against the turn).
-            double rawPitch = applyPhysics ? telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult : 0;
-            double rawRoll = applyPhysics ? telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult : 0;
+            double rawPitch = MotionGain * telemetry.AccelZ * SCALE_ROT_PITCH * effectMultiplier * pitchMult;
+            double rawRoll = MotionGain * telemetry.AccelX * SCALE_ROT_ROLL * effectMultiplier * rollMult;
 
             filteredPitch = alpha * (filteredPitch + rawPitch - prevRawPitch);
             filteredRoll = alpha * (filteredRoll + rawRoll - prevRawRoll);
@@ -197,11 +275,16 @@ namespace MsfsPhysicsCamera
             // 2. bank below the start angle is ignored;
             // 3. above it the turn eases in (soft zone) and is capped at the maximum;
             // 4. a sharp roll is urgent: the faster the bank changes, the shorter the averaging and the
-            //    faster the head moves (a gentle roll-in keeps the normal speed).
+            //    faster the head moves (a gentle roll-in keeps the normal speed);
+            // 5. a fast roll towards level while the head is turned moves the head in proportion to the bank,
+            //    reaching the centre exactly at level, so a reversal is one continuous sweep (see TRANSIT_*);
+            // 6. in a deliberate roll the head looks a little ahead of the actual bank and moves briskly (see LEAD_*).
             double bankDeg = bank * (180.0 / Math.PI);
-            double rawRollRate = Math.Abs(bankDeg - prevBankDeg) / dt;
+            double rawRollRateSigned = (bankDeg - prevBankDeg) / dt;
+            double rawRollRate = Math.Abs(rawRollRateSigned);
             prevBankDeg = bankDeg;
             rollRateDegPerSec += (rawRollRate - rollRateDegPerSec) * (dt / (ROLL_RATE_SMOOTH_SEC + dt));
+            rollRateSignedDegPerSec += (rawRollRateSigned - rollRateSignedDegPerSec) * (dt / (ROLL_RATE_SMOOTH_SEC + dt));
             double urgencyNow = 1.0 + turnLookSnap * Math.Max(0.0, rollRateDegPerSec - ROLL_RATE_GENTLE_DEG) / ROLL_RATE_REF_DEG;
             heldUrgency = 1.0 + (heldUrgency - 1.0) * Math.Exp(-dt / URGENCY_HOLD_SEC);
             heldUrgency = Math.Max(heldUrgency, urgencyNow);
@@ -212,19 +295,127 @@ namespace MsfsPhysicsCamera
                 ? filteredBankDeg + (bankDeg - filteredBankDeg) * (dt / (reactionSec + dt))
                 : bankDeg;
 
-            double targetYaw = 0;
-            if (applyPhysics && lookIntoTurns)
+            // 6. a deliberate roll (either way): look ahead to where the bank is going.
+            double rollRateSigned = rollRateSignedDegPerSec;
+            bool rollingNow = Math.Abs(rollRateSigned) > TRANSIT_ROLL_RATE_ON_DEG;
+            if (rollingNow && Math.Sign(rollRateSigned) != rollDir)
             {
-                double excessDeg = Math.Max(0.0, Math.Abs(filteredBankDeg) - turnLookStartDeg);
-                double easedDeg = excessDeg < TURN_LOOK_SOFT_ZONE_DEG
-                    ? excessDeg * excessDeg / (2.0 * TURN_LOOK_SOFT_ZONE_DEG)
-                    : excessDeg - TURN_LOOK_SOFT_ZONE_DEG / 2.0;
-                double yawDeg = Math.Min(easedDeg * turnLookStrength, turnLookMaxDeg);
-                targetYaw = TURN_LOOK_SIGN * Math.Sign(filteredBankDeg) * yawDeg * (Math.PI / 180.0);
+                rollDir = Math.Sign(rollRateSigned);   // a new roll (or the other way): count from zero
+                rollSec = 0;
+                rollTravelDeg = 0;
             }
+            if (rollingNow)
+            {
+                rollSlowSec = 0;
+                rollSec += dt;
+                rollTravelDeg += Math.Abs(rollRateSigned) * dt;
+            }
+            else
+            {
+                // A short pause does not end the roll; turning the other way does, at once (turbulence).
+                rollSlowSec += dt;
+                bool turnedBack = Math.Abs(rollRateSigned) > TRANSIT_ROLL_RATE_OFF_DEG && Math.Sign(rollRateSigned) != rollDir;
+                if (turnedBack || rollSlowSec > TRANSIT_END_SEC) { rollSec = 0; rollTravelDeg = 0; rollDir = 0; }
+            }
+            bool sweepPastLevel = TurnReversal > 0.5 && transitAnchorBankDeg != 0 && Math.Sign(bankDeg) == -Math.Sign(transitAnchorBankDeg)
+                && Math.Sign(rollRateSigned) == Math.Sign(bankDeg);
+            bool deliberate = rollingNow && ((rollSec >= LEAD_ROLL_SEC && rollTravelDeg >= LEAD_ROLL_TRAVEL_DEG) || sweepPastLevel);
+            double leadTau = deliberate ? LEAD_RISE_SEC : LEAD_FALL_SEC;
+            TurnLead += ((deliberate ? 1.0 : 0.0) - TurnLead) * (dt / (leadTau + dt));
+            // How far ahead: LEAD_SEC of roll (at most LEAD_MAX_DEG), but never past where the wings will stop. An
+            // aircraft slows its roll before it stops; once the roll is slowing, the stopping point is
+            // rate² / (2 x deceleration) ahead, so the head aims there instead of overshooting and coming back.
+            double rawRollAccel = (rollRateSigned - prevRollRateSignedDegPerSec) / dt;
+            prevRollRateSignedDegPerSec = rollRateSigned;
+            rollAccelDegPerSec2 += (rawRollAccel - rollAccelDegPerSec2) * (dt / (ROLL_RATE_SMOOTH_SEC + dt));
+            double aheadAbsDeg = Math.Min(Math.Abs(rollRateSigned) * LEAD_SEC, LEAD_MAX_DEG);
+            if (Math.Sign(rollAccelDegPerSec2) == -Math.Sign(rollRateSigned) && Math.Abs(rollAccelDegPerSec2) > 1.0)
+            {
+                aheadAbsDeg = Math.Min(aheadAbsDeg, rollRateSigned * rollRateSigned / (2.0 * Math.Abs(rollAccelDegPerSec2)));
+            }
+            double aheadDeg = Math.Sign(rollRateSigned) * aheadAbsDeg;
+            double lookBankDeg = filteredBankDeg + TurnLead * (bankDeg + aheadDeg - filteredBankDeg);
+
+            // 2.-3. the normal target ("look" = the head turn on the bank's sign side), for the averaged bank, or
+            // during a deliberate roll the bank ahead.
+            double excessDeg = Math.Max(0.0, Math.Abs(lookBankDeg) - turnLookStartDeg);
+            double easedDeg = excessDeg < TURN_LOOK_SOFT_ZONE_DEG
+                ? excessDeg * excessDeg / (2.0 * TURN_LOOK_SOFT_ZONE_DEG)
+                : excessDeg - TURN_LOOK_SOFT_ZONE_DEG / 2.0;
+            double normalLookDeg = Math.Sign(lookBankDeg) * Math.Min(easedDeg * turnLookStrength, turnLookMaxDeg);
+
+            // 5. roll towards level while the head is turned.
+            double lookDeg = TURN_LOOK_SIGN * HeadYaw * (180.0 / Math.PI);
+            heldLookDeg *= Math.Exp(-dt / TRANSIT_HEAD_MEMORY_SEC);
+            if (Math.Abs(lookDeg) > Math.Abs(heldLookDeg)) heldLookDeg = lookDeg;
+            // The roll is deliberate, so the sweep follows the actual bank, not the averaged one.
+            double rollRate = Math.Abs(rollRateSignedDegPerSec);
+            if (!inTransit)
+            {
+                // Resume the same sweep only while the bank has not gone back beyond where it started; otherwise a
+                // sweep anchored in a shallower bank would hold the head back in a steeper one.
+                bool resume = TurnReversal > TRANSIT_RESUME_WEIGHT && transitAnchorBankDeg != 0
+                    && rollRate > TRANSIT_ROLL_RATE_ON_DEG
+                    && Math.Sign(rollRateSignedDegPerSec) == -Math.Sign(transitAnchorBankDeg)
+                    && (Math.Sign(bankDeg) != Math.Sign(transitAnchorBankDeg) || Math.Abs(bankDeg) <= Math.Abs(transitAnchorBankDeg));
+                bool start = rollRate > TRANSIT_ROLL_RATE_ON_DEG
+                    && Math.Abs(heldLookDeg) > TRANSIT_HEAD_DEG
+                    && Math.Abs(bankDeg) > TRANSIT_MIN_BANK_DEG
+                    && Math.Sign(lookDeg) == Math.Sign(bankDeg)
+                    && Math.Sign(rollRateSignedDegPerSec) == -Math.Sign(bankDeg);
+                if (resume)
+                {
+                    inTransit = true;   // same sweep: keep its anchor
+                }
+                else if (start)
+                {
+                    // Anchored on where the head should be for this bank (the normal target), not on where the
+                    // lagging head happens to be: anchoring on the head ratcheted it towards the centre in
+                    // turbulence, every new sweep starting a little lower.
+                    inTransit = true;
+                    transitAnchorBankDeg = bankDeg;
+                    transitAnchorLookDeg = Math.Sign(bankDeg) * Math.Max(0.0, Math.Sign(bankDeg) * normalLookDeg);
+                }
+                transitSlowSec = 0;
+            }
+            else
+            {
+                bool rolling = rollRate > TRANSIT_ROLL_RATE_OFF_DEG && Math.Sign(rollRateSignedDegPerSec) == -Math.Sign(transitAnchorBankDeg);
+                transitSlowSec = rolling ? 0.0 : transitSlowSec + dt;
+                if (transitSlowSec > TRANSIT_END_SEC) inTransit = false;   // the roll stopped or turned back
+            }
+            TurnReversal = inTransit ? 1.0 : TurnReversal * Math.Exp(-dt / TRANSIT_RELEASE_SEC);
+
+            double targetYaw = 0;
+            if (lookIntoTurns)
+            {
+                double lookTargetDeg = normalLookDeg;
+                if (TurnReversal > 0 && transitAnchorBankDeg != 0)
+                {
+                    // Straight line from the target when the roll started to the centre at level, a little ahead
+                    // of the actual bank (the same look-ahead as point 6), so the head reaches the centre with the
+                    // wings, not after them. On a plain roll-out that lets it drift up to about 1° past the centre.
+                    double lineBankDeg = bankDeg + aheadDeg * TurnLead;
+                    double lineDeg = transitAnchorLookDeg * lineBankDeg / transitAnchorBankDeg;
+                    double normalSameSideDeg = Math.Sign(lookBankDeg) == Math.Sign(lineBankDeg) ? Math.Abs(normalLookDeg) : 0.0;
+                    // Never further out than at the start, on either side; past level the normal target takes over
+                    // where it is larger.
+                    double cappedLineDeg = Math.Min(Math.Abs(lineDeg), Math.Abs(transitAnchorLookDeg));
+                    double transitDeg = Math.Sign(lineBankDeg) == Math.Sign(transitAnchorBankDeg)
+                        ? Math.Sign(lineDeg) * cappedLineDeg
+                        : Math.Sign(lineBankDeg) * Math.Max(cappedLineDeg, normalSameSideDeg);
+                    transitDeg = Math.Clamp(transitDeg, -turnLookMaxDeg, turnLookMaxDeg);
+                    lookTargetDeg = TurnReversal * transitDeg + (1.0 - TurnReversal) * normalLookDeg;
+                }
+                targetYaw = MotionGain * TURN_LOOK_SIGN * lookTargetDeg * (Math.PI / 180.0);
+                LookTargetDeg = lookTargetDeg;
+            }
+            // Brisk head in any deliberate roll: looking ahead (6) or sweeping towards and through level (5).
+            double headUrgency = Math.Max(urgency, 1.0 + (LEAD_MIN_URGENCY - 1.0) * Math.Max(TurnLead, TurnReversal));
+            Urgency = headUrgency;
             // A critically damped spring towards the target (equilibrium where -k * pos + k * target = 0),
             // in sub-steps when it is fast so the explicit integration never overshoots.
-            double omega = TURN_LOOK_OMEGA * Math.Max(0.05, turnLookSpeed) * urgency;
+            double omega = TURN_LOOK_OMEGA * Math.Max(0.05, turnLookSpeed) * headUrgency;
             double yawK = omega * omega;
             double yawC = 2.0 * omega;
             int steps = Math.Max(1, (int)Math.Ceiling(yawC * dt / MAX_DAMPING_STEP));

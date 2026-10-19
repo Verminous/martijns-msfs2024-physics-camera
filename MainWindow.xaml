@@ -2,285 +2,219 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MsfsPhysicsCamera"
-        Title="MSFS Physics Camera" Height="720" Width="850" Closing="Window_Closing" Icon="icon.ico">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="10">
+        Title="MSFS Physics Camera" Height="800" Width="980" MinWidth="860" MinHeight="480"
+        Style="{StaticResource AppWindow}" Closing="Window_Closing" Icon="icon.ico">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource BgBrush}">
+        <Grid Margin="24,20,24,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding StatusText}" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,0,0,15" />
-
-            <!-- Left Side (Telemetry, Physics, Settings) -->
-            <StackPanel Grid.Row="1" Grid.Column="0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Telemetry Input -->
-                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="Telemetry Input" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-                        
-                        <TextBlock Text="Accel X (Lateral):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelX}" Height="20" />
-                            <TextBlock Text="{Binding AccelX, StringFormat={}{0:F2} ft/s²}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Accel Y (Vertical):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelY}" Height="20" />
-                            <TextBlock Text="{Binding AccelY, StringFormat={}{0:F2} ft/s²}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Accel Z (Longitudinal):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-50" Maximum="50" Value="{Binding AccelZ}" Height="20" />
-                            <TextBlock Text="{Binding AccelZ, StringFormat={}{0:F2} ft/s²}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Vel X (Lateral):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelX}" Height="20" />
-                            <TextBlock Text="{Binding VelX, StringFormat={}{0:F2} ft/s}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Vel Y (Vertical):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelY}" Height="20" />
-                            <TextBlock Text="{Binding VelY, StringFormat={}{0:F2} ft/s}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Vel Z (Longitudinal):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1000" Maximum="1000" Value="{Binding VelZ}" Height="20" />
-                            <TextBlock Text="{Binding VelZ, StringFormat={}{0:F2} ft/s}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Plane Pitch (Deg):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlanePitch}" Height="20" />
-                            <TextBlock Text="{Binding PlanePitch, StringFormat={}{0:F2}°}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Plane Bank (Deg):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-90" Maximum="90" Value="{Binding PlaneBank}" Height="20" />
-                            <TextBlock Text="{Binding PlaneBank, StringFormat={}{0:F2}°}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                    </StackPanel>
-
-                    <!-- Physics Output -->
-                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                        <TextBlock Text="Physics Output (Head)" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-                        
-                        <TextBlock Text="Head X (Left/Right):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadX}" Height="20" />
-                            <TextBlock Text="{Binding HeadX, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Head Y (Up/Down):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadY}" Height="20" />
-                            <TextBlock Text="{Binding HeadY, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Head Z (Forward/Back):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-1" Maximum="1" Value="{Binding HeadZ}" Height="20" />
-                            <TextBlock Text="{Binding HeadZ, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Pitch:" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-0.05" Maximum="0.05" Value="{Binding HeadPitch}" Height="20" />
-                            <TextBlock Text="{Binding HeadPitch, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-                        
-                        <TextBlock Text="Roll:" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-0.05" Maximum="0.05" Value="{Binding HeadRoll}" Height="20" />
-                            <TextBlock Text="{Binding HeadRoll, StringFormat={}{0:F3}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Yaw (Look into turn):" />
-                        <Grid Margin="0,0,0,10">
-                            <ProgressBar Minimum="-60" Maximum="60" Value="{Binding HeadYawDeg}" Height="20" />
-                            <TextBlock Text="{Binding HeadYawDeg, StringFormat={}{0:F1}°}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0" />
-                        </Grid>
-
-                        <TextBlock Text="Virtual Head Tracking" FontWeight="Bold" FontSize="16" Margin="0,20,0,10" />
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <Ellipse x:Name="TrackingStatusIcon" Width="16" Height="16" Fill="Red" Margin="0,0,10,0" VerticalAlignment="Top" />
-                            <TextBlock x:Name="TrackingStatusText" TextWrapping="Wrap" VerticalAlignment="Top" Width="220" />
+            <!-- Header: name, connection, head motion -->
+            <DockPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,18">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource Pill}">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource WarnBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SimConnected}" Value="True">
+                                                <Setter Property="Fill" Value="{StaticResource GoodBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource TextSecondaryBrush}" />
                         </StackPanel>
-                        <Border x:Name="TrackingRestartMsg" BorderBrush="Red" BorderThickness="2" CornerRadius="3" Padding="5" Margin="0,0,0,10" Visibility="Collapsed">
-                            <TextBlock Text="Flight Simulator must be restarted before this change takes effect." FontWeight="Bold" Foreground="DarkOrange" TextWrapping="Wrap" />
-                        </Border>
-                        <TextBlock x:Name="TrackingAccessDeniedMsg" Text="(Unable to verify if MSFS has loaded the tracking module due to permission restrictions)" FontStyle="Italic" Foreground="Gray" TextWrapping="Wrap" Margin="0,0,0,10" Visibility="Collapsed" />
-                    </StackPanel>
-                </Grid>
-
-                <!-- Settings -->
-                <StackPanel Margin="0,10,10,0">
-                    <TextBlock Text="Settings" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-                    <WrapPanel>
-                        <CheckBox Content="Minimize on startup" IsChecked="{Binding MinimizeOnStartup}" Margin="0,0,10,10" VerticalAlignment="Center" />
-                        <CheckBox Content="Minimize to tray" IsChecked="{Binding MinimizeToTray}" Margin="0,0,10,10" VerticalAlignment="Center" />
-                        <CheckBox Content="Exit when MSFS exits" IsChecked="{Binding ExitWhenMsfsExits}" Margin="0,0,10,10" VerticalAlignment="Center" />
-                    </WrapPanel>
+                    </Border>
+                    <Border Style="{StaticResource Pill}" ToolTip="Head motion pauses outside the cockpit view, when you get out of the aircraft (walkaround), and while the aircraft stands still on the ground.">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource TextMutedBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding MotionActive}" Value="True">
+                                                <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Foreground="{StaticResource TextSecondaryBrush}">
+                                <Run Text="Head motion" /><Run Text=" " /><Run Text="{Binding MotionStatus, Mode=OneWay}" Foreground="{StaticResource TextBrush}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </StackPanel>
-
-            <!-- Right Side (Tweaking) -->
-            <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
-            <TextBlock Text="Tweaking" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
-
-            <Expander Header="Look into turns" IsExpanded="True" Margin="0,0,0,10">
-                <StackPanel Margin="0,5,0,0">
-                    <CheckBox Content="Turn head into turns" IsChecked="{Binding LookIntoTurns}" Margin="0,0,0,10" VerticalAlignment="Center" ToolTip="Turns the view towards the inside of a turn you hold, in proportion to the bank angle. Short or small banks (corrections, gusts) are ignored." />
-
-                    <TextBlock Text="Start at bank angle:" ToolTip="Bank below this angle never turns the head. Raise it if small corrections still move the view." />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookStart, StringFormat={}{0:F0}°}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0" Maximum="30" Value="{Binding TurnLookStart}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Reaction time (ignore short banks):" ToolTip="The head follows the bank averaged over this time, so brief wobbles average out and a held turn builds up. 0 = follow the bank instantly." />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookReaction, StringFormat={}{0:F1} s}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookReaction}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Head turn speed:" ToolTip="How fast the head moves to where it should look. 1.0x settles in about 1.5 s." />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookSpeed, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0.25" Maximum="3" Value="{Binding TurnLookSpeed}" TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Quicker on sharp banking:" ToolTip="The faster the bank changes, the faster the head reacts and moves (gentle roll-ins keep the normal speed). 0 = always the same speed." />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookSnap, StringFormat={}{0:F1}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookSnap}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Intensity (head turn per degree of bank):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookStrength, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0" Maximum="3" Value="{Binding TurnLookStrength}" TickFrequency="0.05" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Maximum head turn:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TurnLookMax, StringFormat={}{0:F0}°}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="0" Maximum="60" Value="{Binding TurnLookMax}" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Physics Camera" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="Head movement for Microsoft Flight Simulator" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0" />
                 </StackPanel>
-            </Expander>
-
-            <Expander Header="Multipliers" IsExpanded="False" Margin="0,0,0,10">
-                <StackPanel Margin="0,5,0,0">
-                    <TextBlock Text="Effects Multiplier (Global):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding EffectMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding EffectMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Trans X Multiplier:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransXMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransXMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Trans Y Multiplier:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransYMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransYMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Trans Z Multiplier:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransZMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding TransZMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Pitch Multiplier:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding PitchMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding PitchMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-
-                    <TextBlock Text="Roll Multiplier:" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding RollMultiplier, StringFormat={}{0:F2}x}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <Slider Minimum="-5" Maximum="5" Value="{Binding RollMultiplier}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
-                    </DockPanel>
-                </StackPanel>
-            </Expander>
-
-            <Expander Header="Clamps" IsExpanded="False" Margin="0,0,0,10">
-                <StackPanel Margin="0,5,0,0">
-                    <TextBlock Text="Trans X Clamp (Min/Max):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransXMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding TransXMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransXMin}" UpperValue="{Binding TransXMax}" TestClampRequested="RangeSliderX_TestClampRequested" TestClampEnded="RangeSliderX_TestClampEnded" />
-                    </DockPanel>
-
-                    <TextBlock Text="Trans Y Clamp (Min/Max):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransYMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding TransYMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransYMin}" UpperValue="{Binding TransYMax}" TestClampRequested="RangeSliderY_TestClampRequested" TestClampEnded="RangeSliderY_TestClampEnded" />
-                    </DockPanel>
-
-                    <TextBlock Text="Trans Z Clamp (Min/Max):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding TransZMax, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="35" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding TransZMin, StringFormat={}{0:F2}}" DockPanel.Dock="Left" Width="35" TextAlignment="Left" VerticalAlignment="Center" />
-                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
-                    </DockPanel>
-
-                    <TextBlock Text="Pitch Clamp (Min/Max):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding PitchMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding PitchMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
-                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding PitchMin}" UpperValue="{Binding PitchMax}" TestClampRequested="RangeSliderPitch_TestClampRequested" TestClampEnded="RangeSliderPitch_TestClampEnded" />
-                    </DockPanel>
-
-                    <TextBlock Text="Roll Clamp (Min/Max):" />
-                    <DockPanel Margin="0,5,0,10">
-                        <TextBlock Text="{Binding RollMax, StringFormat={}{0:F3}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding RollMin, StringFormat={}{0:F3}}" DockPanel.Dock="Left" Width="40" TextAlignment="Left" VerticalAlignment="Center" />
-                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding RollMin}" UpperValue="{Binding RollMax}" TestClampRequested="RangeSliderRoll_TestClampRequested" TestClampEnded="RangeSliderRoll_TestClampEnded" />
-                    </DockPanel>
-                </StackPanel>
-            </Expander>
-
-            <TextBlock Text="Return-to-Center Speed (Washout Filter):" ToolTip="Controls how quickly the camera returns to the center during sustained G-forces (like in a long turn). 0 = Disabled." />
-            <DockPanel Margin="0,5,0,10">
-                <TextBlock Text="{Binding WashoutStrength, StringFormat={}{0:F2}}" DockPanel.Dock="Right" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
-                <Slider Minimum="0" Maximum="10" Value="{Binding WashoutStrength}" TickFrequency="0.1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
             </DockPanel>
 
-            <StackPanel Orientation="Horizontal" Margin="0,5,0,10" VerticalAlignment="Center">
-                <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}" VerticalAlignment="Center" />
-                <TextBlock Margin="5,0,0,0" VerticalAlignment="Center">
-                    <Hyperlink ToolTipService.InitialShowDelay="0" ToolTip="When enabled, applies a simulated gravity effect to the camera based on the aircraft's pitch and bank angles. Not everybody likes this, as it can feel like the camera is drifting.">
-                        <Run Text="(?)"/>
-                    </Hyperlink>
-                </TextBlock>
+            <!-- Left: what the sim sends, what the head does -->
+            <StackPanel Grid.Row="1" Grid.Column="0">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Aircraft" Style="{StaticResource CardTitle}" Margin="0,0,0,10" />
+                        <local:MeterRow Label="Accel. sideways" Minimum="-50" Maximum="50" Value="{Binding AccelX}" Format="{}{0:F2} ft/s²" />
+                        <local:MeterRow Label="Accel. vertical" Minimum="-50" Maximum="50" Value="{Binding AccelY}" Format="{}{0:F2} ft/s²" />
+                        <local:MeterRow Label="Accel. forward" Minimum="-50" Maximum="50" Value="{Binding AccelZ}" Format="{}{0:F2} ft/s²" />
+                        <local:MeterRow Label="Speed sideways" Minimum="-1000" Maximum="1000" Value="{Binding VelX}" Format="{}{0:F1} ft/s" Margin="0,8,0,0" />
+                        <local:MeterRow Label="Speed vertical" Minimum="-1000" Maximum="1000" Value="{Binding VelY}" Format="{}{0:F1} ft/s" />
+                        <local:MeterRow Label="Speed forward" Minimum="-1000" Maximum="1000" Value="{Binding VelZ}" Format="{}{0:F1} ft/s" />
+                        <local:MeterRow Label="Pitch" Minimum="-90" Maximum="90" Value="{Binding PlanePitch}" Format="{}{0:F1}°" Margin="0,8,0,0" />
+                        <local:MeterRow Label="Bank" Minimum="-90" Maximum="90" Value="{Binding PlaneBank}" Format="{}{0:F1}°" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Head" Style="{StaticResource CardTitle}" Margin="0,0,0,10" />
+                        <local:MeterRow Label="Left / right" Minimum="-1" Maximum="1" Value="{Binding HeadX}" Format="{}{0:F3}" />
+                        <local:MeterRow Label="Up / down" Minimum="-1" Maximum="1" Value="{Binding HeadY}" Format="{}{0:F3}" />
+                        <local:MeterRow Label="Forward / back" Minimum="-1" Maximum="1" Value="{Binding HeadZ}" Format="{}{0:F3}" />
+                        <local:MeterRow Label="Tilt forward" Minimum="-0.05" Maximum="0.05" Value="{Binding HeadPitch}" Format="{}{0:F3}" Margin="0,8,0,0" />
+                        <local:MeterRow Label="Tilt sideways" Minimum="-0.05" Maximum="0.05" Value="{Binding HeadRoll}" Format="{}{0:F3}" />
+                        <local:MeterRow Label="Look into turn" Minimum="-60" Maximum="60" Value="{Binding HeadYawDeg}" Format="{}{0:F1}°" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Head tracking in the sim" Style="{StaticResource CardTitle}" Margin="0,0,0,10" />
+                        <DockPanel>
+                            <Ellipse x:Name="TrackingStatusIcon" DockPanel.Dock="Left" Width="8" Height="8" Fill="{StaticResource TextMutedBrush}" Margin="0,5,10,0" VerticalAlignment="Top" />
+                            <TextBlock x:Name="TrackingStatusText" Text="Checking..." TextWrapping="Wrap" Foreground="{StaticResource TextSecondaryBrush}" />
+                        </DockPanel>
+                        <Border x:Name="TrackingRestartMsg" BorderBrush="{StaticResource WarnBrush}" BorderThickness="1" CornerRadius="6" Padding="10,7" Margin="0,10,0,0" Visibility="Collapsed">
+                            <TextBlock Text="Restart Flight Simulator for this change to take effect." Foreground="{StaticResource WarnBrush}" TextWrapping="Wrap" />
+                        </Border>
+                        <TextBlock x:Name="TrackingAccessDeniedMsg" Text="Could not check whether the sim loaded the tracking module (no permission)." Style="{StaticResource Hint}" Margin="0,8,0,0" Visibility="Collapsed" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="App" Style="{StaticResource CardTitle}" Margin="0,0,0,8" />
+                        <CheckBox Content="Minimize on startup" IsChecked="{Binding MinimizeOnStartup}" />
+                        <CheckBox Content="Minimize to tray" IsChecked="{Binding MinimizeToTray}" />
+                        <CheckBox Content="Exit when MSFS exits" IsChecked="{Binding ExitWhenMsfsExits}" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
-            <CheckBox Content="Only active in cockpit" IsChecked="{Binding OnlyInCockpit}" Margin="0,0,0,10" VerticalAlignment="Center" />
-        </StackPanel>
-    </Grid>
+
+            <!-- Right: settings -->
+            <StackPanel Grid.Row="1" Grid.Column="2">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <CheckBox IsChecked="{Binding LookIntoTurns}" Margin="0" ToolTip="Turns the view towards the inside of a turn you hold, in proportion to the bank angle. Short or small banks (corrections, gusts) are ignored.">
+                            <TextBlock Text="Look into turns" Style="{StaticResource CardTitle}" />
+                        </CheckBox>
+                        <TextBlock Text="Your view turns towards the inside of a turn you hold. Small corrections and gusts are ignored." Style="{StaticResource Hint}" Margin="0,4,0,14" />
+                        <local:SettingSlider Label="Start at bank angle" Minimum="0" Maximum="30" Step="1" Format="{}{0:F0}°" Value="{Binding TurnLookStart}"
+                                             Hint="Bank below this angle never turns the head. Raise it if small corrections still move the view." />
+                        <local:SettingSlider Label="Reaction time" Minimum="0" Maximum="3" Step="0.1" Format="{}{0:F1} s" Value="{Binding TurnLookReaction}"
+                                             Hint="The head follows the bank averaged over this time, so brief wobbles average out and a held turn builds up. 0 = follow the bank instantly." />
+                        <local:SettingSlider Label="Head turn speed" Minimum="0.25" Maximum="3" Step="0.05" Format="{}{0:F2}x" Value="{Binding TurnLookSpeed}"
+                                             Hint="How fast the head moves to where it should look. 1.0x settles in about 1.5 s." />
+                        <local:SettingSlider Label="Quicker on sharp banking" Minimum="0" Maximum="3" Step="0.1" Format="{}{0:F1}" Value="{Binding TurnLookSnap}"
+                                             Hint="The faster the bank changes, the faster the head reacts and moves. Gentle roll-ins keep the normal speed. 0 = always the same speed." />
+                        <local:SettingSlider Label="Intensity" Minimum="0" Maximum="3" Step="0.05" Format="{}{0:F2}x" Value="{Binding TurnLookStrength}"
+                                             Hint="Head turn per degree of bank above the start angle." />
+                        <local:SettingSlider Label="Maximum head turn" Minimum="0" Maximum="60" Step="1" Format="{}{0:F0}°" Value="{Binding TurnLookMax}" Margin="0,0,0,-10" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Feel" Style="{StaticResource CardTitle}" Margin="0,0,0,14" />
+                        <local:SettingSlider Label="Return to centre" Minimum="0" Maximum="10" Step="0.1" Format="{}{0:F2}" Value="{Binding WashoutStrength}"
+                                             Hint="How quickly the view drifts back to the centre during a sustained force, like a long turn. 0 = never." />
+                        <CheckBox Content="Simulate gravity" IsChecked="{Binding SimulateGravity}"
+                                  ToolTip="Adds the pull of gravity from the aircraft's pitch and bank. Not everybody likes it: it can feel like the view is drifting." />
+                        <CheckBox Content="Only in the cockpit view" IsChecked="{Binding OnlyInCockpit}" />
+                    </StackPanel>
+                </Border>
+
+                <Expander IsExpanded="False">
+                    <Expander.Header>
+                        <TextBlock Text="Strength per direction" Style="{StaticResource CardTitle}" />
+                    </Expander.Header>
+                    <StackPanel>
+                        <local:SettingSlider Label="All effects" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding EffectMultiplier}" />
+                        <local:SettingSlider Label="Left / right" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding TransXMultiplier}" />
+                        <local:SettingSlider Label="Up / down" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding TransYMultiplier}" />
+                        <local:SettingSlider Label="Forward / back" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding TransZMultiplier}" />
+                        <local:SettingSlider Label="Tilt forward" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding PitchMultiplier}" />
+                        <local:SettingSlider Label="Tilt sideways" Minimum="-5" Maximum="5" Step="0.1" Format="{}{0:F2}x" Value="{Binding RollMultiplier}" Margin="0,0,0,-10" />
+                    </StackPanel>
+                </Expander>
+
+                <Expander IsExpanded="False">
+                    <Expander.Header>
+                        <TextBlock Text="Limits" Style="{StaticResource CardTitle}" />
+                    </Expander.Header>
+                    <StackPanel>
+                        <TextBlock Text="How far the head may move each way. Drag a handle to preview that position in the sim." Style="{StaticResource Hint}" Margin="0,0,0,12" />
+
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular">
+                                <Run Text="{Binding TransXMin, Mode=OneWay, StringFormat={}{0:F2}}" /><Run Text="  to  " Foreground="{StaticResource TextMutedBrush}" FontWeight="Normal" /><Run Text="{Binding TransXMax, Mode=OneWay, StringFormat={}{0:F2}}" />
+                            </TextBlock>
+                            <TextBlock Text="Left / right" />
+                        </DockPanel>
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransXMin}" UpperValue="{Binding TransXMax}" Margin="-5,2,-5,10"
+                                           TestClampRequested="RangeSliderX_TestClampRequested" TestClampEnded="RangeSliderX_TestClampEnded" />
+
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular">
+                                <Run Text="{Binding TransYMin, Mode=OneWay, StringFormat={}{0:F2}}" /><Run Text="  to  " Foreground="{StaticResource TextMutedBrush}" FontWeight="Normal" /><Run Text="{Binding TransYMax, Mode=OneWay, StringFormat={}{0:F2}}" />
+                            </TextBlock>
+                            <TextBlock Text="Up / down" />
+                        </DockPanel>
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransYMin}" UpperValue="{Binding TransYMax}" Margin="-5,2,-5,10"
+                                           TestClampRequested="RangeSliderY_TestClampRequested" TestClampEnded="RangeSliderY_TestClampEnded" />
+
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular">
+                                <Run Text="{Binding TransZMin, Mode=OneWay, StringFormat={}{0:F2}}" /><Run Text="  to  " Foreground="{StaticResource TextMutedBrush}" FontWeight="Normal" /><Run Text="{Binding TransZMax, Mode=OneWay, StringFormat={}{0:F2}}" />
+                            </TextBlock>
+                            <TextBlock Text="Forward / back" />
+                        </DockPanel>
+                        <local:RangeSlider Minimum="-2" Maximum="2" LowerValue="{Binding TransZMin}" UpperValue="{Binding TransZMax}" Margin="-5,2,-5,10"
+                                           TestClampRequested="RangeSliderZ_TestClampRequested" TestClampEnded="RangeSliderZ_TestClampEnded" />
+
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular">
+                                <Run Text="{Binding PitchMin, Mode=OneWay, StringFormat={}{0:F3}}" /><Run Text="  to  " Foreground="{StaticResource TextMutedBrush}" FontWeight="Normal" /><Run Text="{Binding PitchMax, Mode=OneWay, StringFormat={}{0:F3}}" />
+                            </TextBlock>
+                            <TextBlock Text="Tilt forward" />
+                        </DockPanel>
+                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding PitchMin}" UpperValue="{Binding PitchMax}" Margin="-5,2,-5,10"
+                                           TestClampRequested="RangeSliderPitch_TestClampRequested" TestClampEnded="RangeSliderPitch_TestClampEnded" />
+
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular">
+                                <Run Text="{Binding RollMin, Mode=OneWay, StringFormat={}{0:F3}}" /><Run Text="  to  " Foreground="{StaticResource TextMutedBrush}" FontWeight="Normal" /><Run Text="{Binding RollMax, Mode=OneWay, StringFormat={}{0:F3}}" />
+                            </TextBlock>
+                            <TextBlock Text="Tilt sideways" />
+                        </DockPanel>
+                        <local:RangeSlider Minimum="-0.1" Maximum="0.1" LowerValue="{Binding RollMin}" UpperValue="{Binding RollMax}" Margin="-5,2,-5,0"
+                                           TestClampRequested="RangeSliderRoll_TestClampRequested" TestClampEnded="RangeSliderRoll_TestClampEnded" />
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Window>

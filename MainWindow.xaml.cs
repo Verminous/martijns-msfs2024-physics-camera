@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Win32;
+using Brush = System.Windows.Media.Brush;
 
 namespace MsfsPhysicsCamera
 {
@@ -14,9 +15,20 @@ namespace MsfsPhysicsCamera
     {
         private const double MAX_YAW_RAD = 60.0 * Math.PI / 180.0;
 
+        // Out of the aircraft (MSFS 2024 walkaround): the current user object is more than this far from the
+        // aircraft for ON_FOOT_CONFIRM_SEC. The two positions arrive as separate SimConnect messages, so a moving
+        // aircraft can be up to a few frames apart from itself; the tolerance grows with speed for that.
+        private const double ON_FOOT_MIN_DISTANCE_M = 1.0;
+        private const double ON_FOOT_FRAME_SKEW_SEC = 0.1;
+        private const double ON_FOOT_CONFIRM_SEC = 0.3;
+        private const double KNOTS_TO_MS = 0.514444;
+        private const double FEET_TO_M = 0.3048;
+
         private SimConnectHandler? simConnect;
         private FreeTrackInjector? injector;
+        private TelemetryLog? telemetryLog;
         private PhysicsEngine physics;
+        private double onFootFarTime;
         private Stopwatch stopwatch;
         private double lastTime;
         private bool isRunning = true;
@@ -44,6 +56,9 @@ namespace MsfsPhysicsCamera
         public double HeadPitch { get; set; }
         public double HeadRoll { get; set; }
         public double HeadYawDeg { get; set; }
+        public string MotionStatus { get; set; } = "";
+        public bool MotionActive { get; set; }
+        public bool SimConnected { get; set; }
 
         private double _effectMultiplier = 1.0;
         public double EffectMultiplier
@@ -259,11 +274,14 @@ namespace MsfsPhysicsCamera
         private AppSettings settings;
         private System.Windows.Forms.NotifyIcon? notifyIcon;
 
-        public MainWindow()
+        public MainWindow() : this(preview: false) { }
+
+        // preview: build the window only (no sim connection, tray icon or registry check), for App's --snapshot.
+        public MainWindow(bool preview)
         {
             InitializeComponent();
             DataContext = this;
-            CheckRegistryStatus();
+            if (!preview) CheckRegistryStatus();
 
             settings = AppSettings.Load();
             _effectMultiplier = settings.EffectMultiplier;
@@ -296,6 +314,11 @@ namespace MsfsPhysicsCamera
             _minimizeToTray = settings.MinimizeToTray;
             _exitWhenMsfsExits = settings.ExitWhenMsfsExits;
 
+            physics = new PhysicsEngine();
+            stopwatch = new Stopwatch();
+            physicsThread = new Thread(PhysicsLoop) { IsBackground = true };
+            if (preview) return;
+
             InitializeTrayIcon();
 
             if (settings.WindowTop.HasValue && settings.WindowLeft.HasValue)
@@ -314,11 +337,7 @@ namespace MsfsPhysicsCamera
                 }
             }
 
-            physics = new PhysicsEngine();
-            stopwatch = new Stopwatch();
-
             // Start logic in a background thread
-            physicsThread = new Thread(PhysicsLoop) { IsBackground = true };
             physicsThread.Start();
 
             // Update UI at 60fps
@@ -393,6 +412,9 @@ namespace MsfsPhysicsCamera
             this.Activate();
         }
 
+        // Re-reads every bound property (the window is refreshed this way every frame while connected).
+        public void NotifyAll() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+
         private void SaveSettings()
         {
             if (settings != null)
@@ -437,6 +459,7 @@ namespace MsfsPhysicsCamera
             {
                 simConnect = new SimConnectHandler();
                 injector = new FreeTrackInjector();
+                if (settings.DiagnosticLog) telemetryLog = new TelemetryLog();
                 simConnect.Connect();
                 
                 double timeSinceLastReconnect = 0.0;
@@ -452,6 +475,8 @@ namespace MsfsPhysicsCamera
 
                     if (!simConnect.IsConnected)
                     {
+                        telemetryLog?.Close();
+
                         if (msfsWasRunning && ExitWhenMsfsExits)
                         {
                             Dispatcher.Invoke(() => this.Close());
@@ -462,7 +487,7 @@ namespace MsfsPhysicsCamera
                         if (timeSinceLastReconnect > 2.0)
                         {
                             timeSinceLastReconnect = 0.0;
-                            Dispatcher.Invoke(() => StatusText = "Attempting to connect to MSFS...");
+                            Dispatcher.Invoke(() => StatusText = "Connecting to MSFS");
                             simConnect.Connect();
                         }
                     }
@@ -470,7 +495,16 @@ namespace MsfsPhysicsCamera
                     {
                         msfsWasRunning = true;
                         var data = simConnect.CurrentData;
-                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, PitchMin, PitchMax, RollMin, RollMax, WashoutStrength, SimulateGravity, OnlyInCockpit, LookIntoTurns, TurnLookStrength, TurnLookMax, TurnLookStart, TurnLookReaction, TurnLookSpeed, TurnLookSnap);
+                        var user = simConnect.CurrentUser;
+                        double userDistanceM = user.HasPosition ? DistanceM(data, user.Position) : 0;
+                        double speedMs = Math.Max(data.GroundVelocity * KNOTS_TO_MS,
+                            Math.Sqrt(data.VelX * data.VelX + data.VelY * data.VelY + data.VelZ * data.VelZ) * FEET_TO_M);
+                        double onFootTolerance = ON_FOOT_MIN_DISTANCE_M + speedMs * ON_FOOT_FRAME_SKEW_SEC;
+                        onFootFarTime = user.HasPosition && userDistanceM > onFootTolerance ? onFootFarTime + dt : 0;
+                        bool userOnFoot = onFootFarTime >= ON_FOOT_CONFIRM_SEC;
+
+                        physics.Update(data, dt, EffectMultiplier, TransXMultiplier, TransYMultiplier, TransZMultiplier, PitchMultiplier, RollMultiplier, TransXMin, TransXMax, TransYMin, TransYMax, TransZMin, TransZMax, PitchMin, PitchMax, RollMin, RollMax, WashoutStrength, SimulateGravity, OnlyInCockpit, LookIntoTurns, TurnLookStrength, TurnLookMax, TurnLookStart, TurnLookReaction, TurnLookSpeed, TurnLookSnap, userOnFoot);
+                        telemetryLog?.Write(dt, data, user, userDistanceM, physics);
 
                         // FreeTrack expects translations in millimeters and rotations in radians. 
                         // The base output was misjudged by roughly a factor of 16.
@@ -496,12 +530,25 @@ namespace MsfsPhysicsCamera
             }
         }
 
+        // Distance between the aircraft and the current user object (flat-earth approximation; both are
+        // at most a few hundred metres apart when it matters).
+        private static double DistanceM(SimConnectHandler.TelemetryData aircraft, SimConnectHandler.UserPosition user)
+        {
+            const double M_PER_DEG = 111320.0;
+            double dLon = (user.Longitude - aircraft.Longitude + 540.0) % 360.0 - 180.0;
+            double north = (user.Latitude - aircraft.Latitude) * M_PER_DEG;
+            double east = dLon * M_PER_DEG * Math.Cos(aircraft.Latitude * Math.PI / 180.0);
+            double up = (user.Altitude - aircraft.Altitude) * FEET_TO_M;
+            return Math.Sqrt(north * north + east * east + up * up);
+        }
+
         private void UpdateUI(object? sender, EventArgs e)
         {
             if (simConnect != null && simConnect.IsConnected)
             {
-                StatusText = "Connected to MSFS SimConnect";
-                
+                StatusText = "Connected to MSFS";
+                SimConnected = true;
+
                 var data = simConnect.CurrentData;
                 AccelX = data.AccelX;
                 AccelY = data.AccelY;
@@ -518,14 +565,22 @@ namespace MsfsPhysicsCamera
                 HeadPitch = physics.HeadPitch;
                 HeadRoll = physics.HeadRoll;
                 HeadYawDeg = physics.HeadYaw * (180.0 / Math.PI);
+                MotionStatus = !physics.InCockpit ? "paused: not in the cockpit view"
+                    : physics.UserOnFoot ? "paused: you are out of the aircraft"
+                    : physics.Parked ? "paused: standing still on the ground"
+                    : "on";
+                MotionActive = physics.InCockpit && !physics.UserOnFoot && !physics.Parked;
 
                 // Notify UI
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
             }
             else
             {
-                StatusText = "Waiting for MSFS connection...";
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusText)));
+                StatusText = "Waiting for MSFS";
+                SimConnected = false;
+                MotionStatus = "off";
+                MotionActive = false;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
             }
         }
 
@@ -547,6 +602,7 @@ namespace MsfsPhysicsCamera
             physicsThread?.Join(1000);
             simConnect?.Dispose();
             injector?.Dispose();
+            telemetryLog?.Dispose();
             
             if (notifyIcon != null)
             {
@@ -644,7 +700,7 @@ namespace MsfsPhysicsCamera
 
                     if (fixFailed)
                     {
-                        TrackingStatusIcon.Fill = new SolidColorBrush(Colors.Red);
+                        TrackingStatusIcon.Fill = (Brush)FindResource("BadBrush");
                         TrackingStatusText.Text = "Head tracking does not appear to be correctly configured and we could not automatically fix it. Please check your registry permissions.";
                         TrackingRestartMsg.Visibility = Visibility.Collapsed;
                         return;
@@ -670,7 +726,7 @@ namespace MsfsPhysicsCamera
 
                     if (needsRestart)
                     {
-                        TrackingStatusIcon.Fill = new SolidColorBrush(Colors.Orange);
+                        TrackingStatusIcon.Fill = (Brush)FindResource("WarnBrush");
                         TrackingStatusText.Text = registryWasCorrect
                             ? "Head tracking is configured, but MSFS hasn't loaded it yet."
                             : "Head tracking was unconfigured, but we automatically applied a fix. You should be good to go going forward.";
@@ -688,7 +744,7 @@ namespace MsfsPhysicsCamera
                     }
                     else
                     {
-                        TrackingStatusIcon.Fill = new SolidColorBrush(Colors.Green);
+                        TrackingStatusIcon.Fill = (Brush)FindResource("GoodBrush");
                         TrackingStatusText.Text = registryWasCorrect
                             ? "Head tracking seems to be configured correctly in Flight Simulator. You should be good to go."
                             : "Head tracking was unconfigured, but we automatically applied a fix. You should be good to go going forward.";

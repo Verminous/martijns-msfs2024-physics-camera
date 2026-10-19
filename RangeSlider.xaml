@@ -4,25 +4,15 @@
              Height="24" SizeChanged="UserControl_SizeChanged">
     <Grid>
         <!-- Background track -->
-        <Border Height="4" Background="LightGray" VerticalAlignment="Center" Margin="5,0" CornerRadius="2"/>
+        <Border Height="4" Background="{StaticResource TrackBrush}" VerticalAlignment="Center" Margin="5,0" CornerRadius="2"/>
         <!-- Active track -->
-        <Border x:Name="ActiveTrack" Height="4" Background="#0078D7" VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="2"/>
-        
+        <Border x:Name="ActiveTrack" Height="4" Background="{StaticResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="2"/>
+
         <Canvas x:Name="SliderCanvas" Margin="5,0">
-            <Thumb x:Name="MinThumb" Width="10" Height="20" Canvas.Top="2" DragDelta="MinThumb_DragDelta" DragStarted="MinThumb_DragStarted" DragCompleted="Thumb_DragCompleted">
-                <Thumb.Template>
-                    <ControlTemplate TargetType="Thumb">
-                        <Border Background="#0078D7" CornerRadius="2" BorderBrush="DarkGray" BorderThickness="1"/>
-                    </ControlTemplate>
-                </Thumb.Template>
-            </Thumb>
-            <Thumb x:Name="MaxThumb" Width="10" Height="20" Canvas.Top="2" DragDelta="MaxThumb_DragDelta" DragStarted="MaxThumb_DragStarted" DragCompleted="Thumb_DragCompleted">
-                <Thumb.Template>
-                    <ControlTemplate TargetType="Thumb">
-                        <Border Background="#0078D7" CornerRadius="2" BorderBrush="DarkGray" BorderThickness="1"/>
-                    </ControlTemplate>
-                </Thumb.Template>
-            </Thumb>
+            <Thumb x:Name="MinThumb" Width="16" Height="16" Canvas.Top="4" Cursor="Hand" Template="{StaticResource RoundThumb}"
+                   DragDelta="MinThumb_DragDelta" DragStarted="MinThumb_DragStarted" DragCompleted="Thumb_DragCompleted" />
+            <Thumb x:Name="MaxThumb" Width="16" Height="16" Canvas.Top="4" Cursor="Hand" Template="{StaticResource RoundThumb}"
+                   DragDelta="MaxThumb_DragDelta" DragStarted="MaxThumb_DragStarted" DragCompleted="Thumb_DragCompleted" />
         </Canvas>
     </Grid>
 </UserControl>

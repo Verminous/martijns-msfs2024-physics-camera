@@ -1,5 +1,7 @@
 # MSFS Physics Camera
 
+> **This is a fork.** What it adds (look into turns, pausing on foot and at a standstill, a diagnostic log) and how it runs on Linux/Proton: [FORK.md](FORK.md).
+
 ![AI Assisted](https://img.shields.io/badge/AI-assisted-blue)
 ![MIT](https://img.shields.io/github/license/martijns/martijns-msfs2024-physics-camera)
 

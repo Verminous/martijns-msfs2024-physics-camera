@@ -40,6 +40,9 @@ namespace MsfsPhysicsCamera
         public double TurnLookSpeed { get; set; } = 1.0;
         public double TurnLookSnap { get; set; } = 1.0;
 
+        // Writes logs/telemetry-<start time>.csv (see TelemetryLog.cs). No setting in the window.
+        public bool DiagnosticLog { get; set; } = true;
+
         public bool MinimizeOnStartup { get; set; } = false;
         public bool MinimizeToTray { get; set; } = false;
         public bool ExitWhenMsfsExits { get; set; } = false;
